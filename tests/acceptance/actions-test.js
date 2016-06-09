@@ -9,7 +9,8 @@ let {
   clickable,
   fillable,
   value,
-  visitable
+  visitable,
+  lazyProperty
 } = PageObject;
 
 let page = PageObject.create({
@@ -21,7 +22,9 @@ let page = PageObject.create({
   },
 
   screen: value('.screen input'),
-  fillValue: fillable('.screen input')
+  fillValue: fillable('.screen input'),
+
+  lazyScreen: lazyProperty(value, '.& input')
 });
 
 test('allows to chain actions', function(assert) {
@@ -35,7 +38,8 @@ test('allows to chain actions', function(assert) {
     .equal();
 
   andThen(function() {
-    assert.equal(page.screen, '15');
+    assert.equal(page.lazyScreen('screen'), '15');
+    assert.equal(page.lazyScreen('screen'), '15');
   });
 
   page

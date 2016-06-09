@@ -19,7 +19,10 @@ import { visitable }   from 'ember-cli-page-object'; export { visitable };
 
 export { buildSelector, findElementWithAssert, findElement, getContext } from 'ember-cli-page-object';
 
+import { lazyProperty } from 'ember-cli-page-object';
+
 export default {
+  lazyProperty,
   attribute,
   clickOnText,
   clickable,

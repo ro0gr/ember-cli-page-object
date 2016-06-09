@@ -307,3 +307,24 @@ export function getContext(node) {
     return null;
   }
 }
+
+export function lazyProperty(modifier, template = '&') {
+  if (!template.trim()) {
+    throw new Error('Empty template is not allowed');
+  }
+
+  return function(name, ...args) {
+    if (!name.trim()) {
+      throw new Error('Empty name is not allowed');
+    }
+
+    let compiled = template.replace('&', name);
+    if (!this.hasOwnProperty(compiled)) {
+      let prop = modifier(compiled, ...args);
+      Object.defineProperty(this, compiled, prop);
+    }
+
+    return this[compiled];
+  };
+}
+
