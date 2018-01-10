@@ -1,6 +1,5 @@
 import { fixture } from './acceptance-adapter';
 export { moduleForComponent as moduleForIntegration, test as testForIntegration } from 'ember-qunit';
-import expectEmberError from '../../expect-ember-error';
 import hbs from 'htmlbars-inline-precompile';
 
 import Ember from 'ember';
@@ -42,7 +41,7 @@ IntegrationAdapter.prototype = {
 
   throws(assert, block, expected, message) {
     Ember.run(() => {
-      expectEmberError(assert, block, expected, message);
+      assert.throws(block, expected, message);
     });
   },
 
