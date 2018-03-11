@@ -1,4 +1,3 @@
-# Site settings
 title: ember-cli-page-object
 email: kudgo.test@gmail.com
 description: >
@@ -13,7 +12,7 @@ exclude: ["bower_components", "tmp", "node_modules", "tmp_docs"]
 
 # Build settings
 markdown: kramdown
- 
+
 kramdown:
   input: GFM
   syntax_highlighter: rouge
