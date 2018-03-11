@@ -4,7 +4,7 @@ description: >
   Represent the screens of your web app as a series of objects. This ember-cli
   addon eases the construction of these objects on your acceptance tests. Works
   with every version of Ember.
-baseurl: "ember-cli-page-object/"
+baseurl: "/ember-cli-page-object/"
 url: "http://ro0gr.github.io/"
 twitter_username: ro0gr
 github_username: ro0gr
