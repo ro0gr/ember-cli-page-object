@@ -110,14 +110,6 @@ ExecutionContext.prototype = {
   },
 
   triggerEvent(selector, container, options, eventName, eventOptions) {
-    // `keyCode` is a deprecated property.
-    // @see: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
-    // Due to this deprecation `ember-native-dom-helpers` doesn't accept `keyCode` as a `KeyboardEvent` option.
-    if (typeof eventOptions.key === 'undefined' && typeof eventOptions.keyCode !== 'undefined') {
-      eventOptions.key = eventOptions.keyCode.toString();
-      delete eventOptions.keyCode;
-    }
-
     return this.invokeHelper(selector, options, triggerEvent, eventName, eventOptions);
   },
 
