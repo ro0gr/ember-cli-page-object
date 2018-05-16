@@ -1,14 +1,19 @@
-import { create }      from './create';                   export { create };
+import { create } from './create'; export { create };
+import { collection } from './collection'; export { collection };
 
-import { attribute }   from './properties/attribute';     export { attribute };
+// Async actions
 import { blurrable }   from './properties/blurrable';     export { blurrable };
 import { clickOnText } from './properties/click-on-text'; export { clickOnText };
 import { clickable }   from './properties/clickable';     export { clickable };
-import { collection }  from './properties/collection';    export { collection };
-import { contains }    from './properties/contains';      export { contains };
-import { count }       from './properties/count';         export { count };
 import { fillable }    from './properties/fillable';      export { fillable }; export const selectable = fillable;
 import { focusable }   from './properties/focusable';     export { focusable };
+import { triggerable } from './properties/triggerable';   export { triggerable };
+import { visitable }   from './properties/visitable';     export { visitable };
+
+// properties
+import { attribute }   from './properties/attribute';     export { attribute };
+import { contains }    from './properties/contains';      export { contains };
+import { count }       from './properties/count';         export { count };
 import { hasClass }    from './properties/has-class';     export { hasClass };
 import { is }          from './properties/is';            export { is };
 import { isHidden }    from './properties/is-hidden';     export { isHidden };
@@ -17,12 +22,9 @@ import { isVisible }   from './properties/is-visible';    export { isVisible };
 import { notHasClass } from './properties/not-has-class'; export { notHasClass };
 import { property }    from './properties/property';      export { property };
 import { text }        from './properties/text';          export { text };
-import { triggerable } from './properties/triggerable';   export { triggerable };
 import { value }       from './properties/value';         export { value };
-import { visitable }   from './properties/visitable';     export { visitable };
 
-export { findElement } from './extend/find-element';
-export { findElementWithAssert } from './extend/find-element-with-assert';
+export { findElement, findElementWithAssert } from './extend';
 export { buildSelector, getContext } from './-private/helpers';
 
 export default {

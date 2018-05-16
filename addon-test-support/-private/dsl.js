@@ -1,4 +1,4 @@
-import { as } from '../properties/as';
+import { as } from '../as';
 import { blurrable } from '../properties/blurrable';
 import { clickable } from '../properties/clickable';
 import { clickOnText } from '../properties/click-on-text';

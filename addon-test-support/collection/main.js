@@ -1,8 +1,8 @@
 /* global Symbol */
 import { A } from '@ember/array';
-import { buildSelector, assign } from '../../-private/helpers';
-import { create } from '../../create';
-import { count } from '../count';
+import { buildSelector, assign } from '../-private/helpers';
+import { create } from '../create';
+import { count } from '../properties/count';
 import Ceibo from 'ceibo';
 
 export class Collection {

@@ -1,8 +1,8 @@
 /* global Symbol */
 import { A } from '@ember/array';
-import { buildSelector, assign as mergeFunction } from '../../-private/helpers';
-import { create } from '../../create';
-import { count } from '../count';
+import { buildSelector, assign as mergeFunction } from '../-private/helpers';
+import { create } from '../create';
+import { count } from '../properties/count';
 import Ceibo from 'ceibo';
 
 const arrayDelegateMethods = ['map', 'filter', 'mapBy', 'filterBy', 'forEach'];
