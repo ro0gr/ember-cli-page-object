@@ -18,23 +18,34 @@ This is a short guide to get you started writing page objects and using them in 
 Suppose we have a simple login form component with the following result markup:
 
 ```html
-<form>
-  <span data-test-error></span>
+<div class="AwesomeList">
+  <form data-test-search>
+    <label for="awesome-search-input">
+      User search:
+    </label>
 
-  <div data-test-username class="has-error">
-    <label for="username">Username:</label>
-    <input id="username" />
-    <span class="error-message"></span>
-  </div>
+    <input id="awesome-search-input" />
 
-  <div data-test-password class="has-error">
-    <label for="password">Password:</label>
-    <input id="password" />
-    <span class="error-message"></span>
-  </div>
+    <button>GO</button>
+  </form>
 
-  <button [data-test-save]>Save</button>
-</form>
+  <ul data-test-list>
+    <li>
+      <h3>{{this.username}}</h3>
+      <fieldset>
+        {{!-- whatewher --}}
+      </fieldset>
+
+      {{link-to "like" {{id"}}Edit{{/link-to}}
+    </li>
+  </ul>
+
+  <ul data-test-pager >
+    <li><a>1</a></li>
+    <li><a>2</a></li>
+    <li><a>>></a></li>
+  </ul>
+</div>
 ```
 
 First let's take a look on a typical Ember component tests for this form:
