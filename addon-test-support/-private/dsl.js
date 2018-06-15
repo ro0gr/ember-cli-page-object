@@ -14,20 +14,21 @@ import { value } from '../properties/value';
 import { getRoot } from './helpers';
 import { wait } from './compatibility';
 
-const thenDescriptor = {
-  isDescriptor: true,
-  value() {
-    // In RFC268 tests, we need to wait on the promise returned from the actual
-    // test helper, rather than a global method such as `wait`. So, we store the
-    // promise on the root of the (chained) tree so we can find it here and use
-    // it.
-    let promise = getRoot(this)._promise;
-    if (!promise) {
-      promise = (window.wait || wait)();
-    }
-    return promise.then(...arguments);
+/**
+ * Fallback to Ember window.wait() test helper.
+ *
+ * We store the promise on the root of the (chained) tree
+ * so we can find it here and use it.
+ *
+ * @returns Promise
+ */
+function _wait() {
+  let promise = getRoot(this)._promise;
+  if (!promise) {
+    promise = (window.wait || wait)();
   }
-};
+  return promise.then(...arguments);
+}
 
 const dsl = {
   as,
@@ -42,7 +43,7 @@ const dsl = {
   isVisible: isVisible(),
   select: fillable(),
   text: text(),
-  then: thenDescriptor,
+  then: _wait,
   value: value()
 };
 
