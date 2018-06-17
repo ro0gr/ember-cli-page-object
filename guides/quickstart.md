@@ -5,554 +5,115 @@ title: Quickstart
 
 {% raw %}
 
-In terms of EmberCLI Page Object each page can be divided into components and collections which are are a general Page Object building blocks.
-
-Suppose we have a simple component with a following markup:
-
-```html
-<article class="AwesomeItem">
-  {{#link-to "awesome.items" @article.id
-    class="AwesomeItem-title"
-  }}
-    <h3>{{@article.title}}</h3>
-  {{/link-to}}
-
-  <ul class="AwesomeItem-badges">
-    {{#each @article.badges as |b|}}
-      <li class="Badge--{{b.tone}}">{{b.title}}</li>
-    {{/each}}
-  </ul>
-
-  <span class="AwesomeItem-lastUpdated">{{@article.updatedAt}}</span>
-</article
-
-```
-
-Each component should have a css `scope` defined:
-
-```js
-const component = create({
-  scope: '.AwesomeItem',
-
-  title: {
-    scope: '.AwesomeItem-title'
-  },
-
-  updatedAt: {
-    scope: '.AwesomeItem-lastUpdated'
-  }
-}); 
-```
-
-It allows us to query DOM:
-
-```js
-test('it renders', async function(assert) {
-  this.article = {
-    title: 'Expected Title',
-    updatedAt: 'Sun Jun 17 2018'
-  };
-
-  await render(`{{awesome-item
-    @article=this.article
-  }}`);
-
-  assert.ok(component.isVisible);
-  assert.equal(component.title.text, 'Expected Title');
-  assert.equal(component.updatedAt.text, 'Sun Jun 17 2018');
-});
-```
-
-In order to define collections you also need to pass a `scope` as a first argument.
-
-```js
-  {
-    // ...
-
-    badges: collection('.AwesomeItem-badges')
-  }
-```
-
-now we can itenteract with a badges list items:
-
-```js
-test('it renders', async function(assert) {
-  this.article = this.server.create('article', {
-    badges: [{
-      tone
-    }]
-  };
-
-  await render(`{{awesome-item
-    @article=this.article
-  }}`);
-
-  assert.ok(component.isVisible);
-  assert.equal(component.title.text, 'Expected Title');
-  assert.equal(component.updatedAt.text, 'Sun Jun 17 2018');
-});
-```
-
-```js
-  assert.equal(component.badges.length, 0);
-```
-
-
- `title`, list of `badges`simple login form component with the following result markup:
-
-
-Suppose we have a simple login form component with the following result markup:
-
-
-Let's consider a generic search page with a search form and a result view. This would cover most of the EmberCLI Page Object concepts.
-
-```html
-<div class="AwesomeList">
-  <form data-test-search>
-    <label for="awesome-search-input">User search:</label>
-
-    <input id="awesome-search-input" />
-
-    <button>GO</button>
-  </form>
-
-  <ul>
-      <li data-test-awesome-item>
-        <span data-score={{a.score}} class="score {{#if a.wip}}wip{{/if}}"></span>
-
-        <ul data-test-categories>
-          {{#each a.categories as |category|}}
-            <li>{{category.tag}}</li>
-          {{/each}}
-        </ul>
-
-        <span class="last-updated">{{a.date}}</span>
-      </li>
-    {{/each}}
-  </ul>
-</div>
-```
-
-First let's take a look on a typical Ember component tests for this form:
-
-```js
-test('it requires username and password', async function(assert) {
-  await render(hbs`{{login-form}}`);
-
-  await click('[data-test-save]');
-
-  assert.dom('[data-test-username]').hasClass('has-error');
-  assert.dom('[data-test-username] .error-message').hasText('Username is required');
-
-  assert.dom('[data-test-password]').hasClass('has-error');
-  assert.dom('[data-test-password] .error-message').hasText('Password is required');
-});
-
-test('it successfully submits', async function(assert) {
-  await render(hbs`{{login-form}}`);
-
-  await fillIn('[data-test-username] input', 'Username')
-  await fillIn('[data-test-password] input', 'Password')
-
-  await click('[data-test-save]');
-
-  assert.dom('[data-test-username]').doesNotHaveClass('has-error');
-  assert.dom('[data-test-username] .error-message').doesNotExist();
-
-  assert.dom('[data-test-password]').doesNotHaveClass('has-error');
-  assert.dom('[data-test-password] .error-message').doesNotExist();
-});
-```
-
-That's quite a straightforward and simple test. So why do we even need to use Page Object here?
-
-In the nutshell the issue with this kind of tests is that it heavily relies on css selectors.
-
-For the instance let's take a look on the `username` field from the testing standpoint: 
-  - All the `username` operation are scoped with `[data-test-username]`. 
-  - In order to check if it's highlighted as an error we check if the `has-error` class exists.
-  - In order to check an error message we access `[data-test-username] .error-message`.
-  - In order to fill in the value we access `[data-test-username] input`.
-
-
-The complexity grows for more sophisticated components or more complex components hierarchies. In addition in cases when the implementation or selectors changes you may end up updating all the related tests.
-
-So how can we improve this with Page Object?
-
-Page Object helps you to encapsulate difficulties of the UI layer in a declarative and composable way. Let's try it now!
-
-## Modeling Components
-
-First, we have to create a Page Object component:
+## Installation
 
 ```bash
-$ ember generate page-object-component login-form
+$ ember install ember-cli-page-object
+```
+
+## Components
+
+Components are the main building blocks in the EmberCLI Page Object. You can create one by running a component generator:
+
+```bash
+$ ember generate page-object-component search-form
 
 installing
-  create tests/pages/components/login-form.js
+  create tests/pages/components/search-form.js
 ```
 
-Let's describe the login form structure on our new `login-form` component object:
+Each component requires a css `scope` to be definied:
 
 ```js
-// app-name/tests/pages/components/login-form.js
+// project-name/tests/pages/components/search-form.js
 
 export default {
-  scope: 'form',
+  scope: 'form.SearchForm',
 
-  username: {
-    scope: '[data-test-username]',
-
-    errorMessage: {
-      scope: '.error-message'
-    }
+  input: {
+    scope: 'input.[data-test-input-field]'
   },
 
-  password: {
-    scope: '[data-test-password]',
-
-    errorMessage: {
-      scope: '.error-message'
-    }
-  },
-
-  saveButton: {
-    scope: '[data-test-save]'
+  submitButton: {
+    scope: 'button'
   }
-};
+}
 ```
 
-As you can see Page Object component can be represented a plain javascript object. It can also contain deeply nested components like `username` or `username.errorMessage`. The only requirement for component is to have a `scope` property with a CSS selector value which allows us to map components to the DOM. 
-
-Out of the box each component has a set of supplied helpers like `isVisible`, `click`, `fillIn`, `text` and [others](./api/components#default-attributes). This allows us to do some cool things with our page object right now:
+Each component is supplied with a list of default properties and actions which can be used right after the page object instance is created:
 
 ```js
 import { create } from 'ember-cli-page-object';
-import LoginForm from 'app-name/tests/pages/components/login-form';
+import SearchForm from 'project-name/tests/pages/components/search-form';
 
-// before usage the page should be created from the definition
-const loginForm = create(LoginForm);
+const searchForm = create(SearchForm);
 
-test("Compoent built-ins demo", async function() {
-  await render(hbs`{{login-form}}`)
+test('it renders', async function(assert) {
+  await render(`{{search-form}}`);
 
-  assert.ok(loginForm.isVisible);
+  assert.ok(searchForm.isVisible);
+});
 
-  await loginForm.submitButton.click();
+test('it can submit', async function(assert) {
+  let actualText;
+  this.onSubmit = (searchText) => { actualText = searchText; }
 
-  assert.equal(loginForm.username.errorMessage.text, 'Username is required');
-})
+  await render(`{{search-form onSubmit=(action this.onSubmit)}}`);
+
+  await searchForm.input.fillIn('search text');
+  await searchForm.submitButton.click();
+
+  assert.equal(actualText, 'search text')
+});
 ```
 
-Great! We've got closer.
-
-Now we have to improve definitions for the `username` and `password` in order to be able to check for `has-error` class existance and filling it in of course.
-
-In addition to built-in component helpers Page Object also provides us with a set of properties which you can use to extend the component functionality. We would use `hasClass` helper to check if the `username` is invalid:
+In order to describe a list of components a `collection` should be used:
 
 ```js
-import { hasClass } from 'ember-cli-page-object';
+// project-name/tests/pages/components/awesome-list.js
+
+import { collection } from 'ember-cli-page-object';
 
 export default {
-  scope: 'form',
+  scope: '.AwesomeList',
 
-  username: {
-    scope: '[data-test-username]'
-
-    // Add `hasError` boolean property
-    hasError: hasClass('has-error'),
-
-    errorMessage: {
-      scope: '.error-message'
-    }
-  },
-
-  // ...
-}
-```
-
-Now `hasError` can be used as a `username` getter:
-
-```js
-assert.ok(loginForm.username.hasError);
-```
-
-The last missing part is filling an input with a value.
-
-As mentioned above there is a built-in `fillIn` component property supplied for each component. Howerver if we call `fillIn` on the `username` right now it would fail because the `username` comforms to the `div[data-test-username]` which can't be filled in. We need instruct `fillIn` to deal with an `input` children node.
-
-```js
-import { hasError, fillable } from 'ember-cli-page-object';
-
-export default {
-  scope: 'form',
-
-  username: {
-    scope: '[data-test-username]'
-
-    hasError: hasClass('has-error'),
-
-    // All the parent scopes are getting prepended to the final selector
-    // so the final selector would become "form [data-test-username] input"
-    fillIn: fillable('input'),
-
-    errorMessage: {
-      scope: '.error-message'
-    }
-  },
-
-  // ...
-}
-```
-
-That's it. Our `username` is ready to be used in the tests. But what about the `password`? Should we copy-paste all the `username` implementation into it?
-
-## Macroses
-
-Well, the only difference between  the `username` and `password` is a `scope` selector. It could be annoying to repeat the whole field definition accross all the similar fields. 
-
-In order to reduce the duplication we can extract a field definition creation to a separate macros and re-use it for any input field component in our project:
-
-```js
-/**
- * Assembles a regular input with a configurable scope
- */
-function formInput(scope) {
-  return {
-    scope,
-
-    fillIn: fillable('input'),
-
-    hasError: hasClass('has-error')
-
-    errorMessage: {
-      scope: '.error-message'
+  items: collection('.AwesomeItem', {
+    title: {
+      scope: '.AwesomeItem-title'
     },
-  },
+
+    badges: collection('.AwesomeBadges'),
+
+    updatedAt: {
+      scope: '.AwesomeItem-lastUpdated'
+    }
+  })
 }
-
 ```
 
-With this change the final version of our `login-form` component definition would look like:
-
-```js
-import { inputField } from '../macros/input-field';
-
-export default {
-  scope: 'form',
-
-  username: inputField('[data-test-username]'),
-
-  password: inputField('[data-test-password]'),
-
-  saveButton: {
-    scope: '[data-test-save]'
-  }
-};
-```
-
-And the test looks like:
+EmberCLI Page Object collections behave similar to a usual JS Arrays:
 
 ```js
 import { create } from 'ember-cli-page-object';
-import LoginForm from 'app-name/tests/pages/components/login-form';
+import AwesomeList from 'project-name/tests/pages/components/awesome-list';
 
-const form = create(LoginForm);
+const awesomeForm = create(AwesomeList);
 
-test('it requires username and password', async function(assert) {
-  await render(hbs`{{login-form}}`);
+test('it renders', async function(assert) {
+  this.items = this.server.createList('awesome-item', [{
+    title: 'Some title'
+  }])
 
-  await form.submitButton.click();
+  await render(`{{awesome-list items=this.items}}`);
 
-  assert.ok(form.username.hasError);
-  assert.equal(form.username.errorMessage.text, 'Username is required');
+  assert.equal(awesomeList.items.length, 1);
+  assert.equal(awesomeList.items[0].title, 'Some title');
 
-  assert.ok(form.password.hasError);
-  assert.equal(form.password.errorMessage.text, 'Password is required');
-});
-
-test('it successfully submits', async function(assert) {
-  await render(hbs`{{login-form}}`);
-
-  await form.username.fillIn('Username')
-  await form.password.fillIn('Invalid Password')
-  await form.submitButton.click();
-
-  assert.notOk(form.username.hasError);
-  assert.notOk(form.username.errorMessage.isVisible);
-
-  assert.notOk(form.password.hasError);
-  assert.notOk(form.password.errorMessage.isVisible);
+  assert.ok(awesomeList.items[0].updatedAt.isVisible);
 });
 ```
 
-Now all the DOM implementation details of the `login-form` are abstracted away with a Page Object. It improves test readability and feel safer while refactoring. 
+By composing components and collections together you can describe very complex components hierarchies.
 
-## Higher Order Methods
-
-Of course we can always go a step further and describe the steps of the test using a higher level of abstraction. For example in our particular case we can make a shorthand for the form submission:
-
-```js
-import { inputField } from '../macros/input-field';
-
-export default {
-  scope: 'form',
-
-  username: inputField('[data-test-username]'),
-
-  password: inputField('[data-test-password]'),
-
-  saveButton: {
-    scope: '[data-test-save]'
-  },
-
-  async submit(data = {}) {
-    await this.username.fillIn(data.username);
-    await this.password.fillIn(data.password);
-
-    await this.saveButton.click();
-  }
-};
-```
-
-Then
-
-```js
-  await form.username.fillIn('Username');
-  await form.password.fillIn('Password');
-  await form.submitButton.click();
-```
-
-can be re-written as:
-
-```js
-  await form.submit({
-    username: 'Username',
-    password: 'Invalid Password'
-  });
-```
-
-## Application Tests
-
-Now we have a complete Page Object representation for the `login-form` component. We can re-use Page Object components in the different Page Objects to get a comprehensive Page API.
-
-Let's assume we want to test an integration of a hypothetical "Dashboard Page" with a "Login Page". It is obviously a call for an Ember Application test since the routing is involved here.
-
-Let's create a Dashboard page:
-
-```bash
-$ ember generate page-object dashboard
-
-installing
-  create tests/pages/dashboard.js
-```
-
-```js
-// app-name/tests/pages/dashboard.js
-
-import { create, visitable } from 'ember-cli-page-object';
-
-export default create({
-  visit: visitable('/dashboard'),
-
-  scope: '[data-test-dashboard-page]'
-});
-```
-
-This page object allows us to visit the Dashboard and to check if the page is currently visible. This should be enough for our simple demo test cases.
-
-Now let's create a Login Page and include our fresh `login-form` component into it:
-
-```bash
-$ ember generate page-object login
-
-installing
-  create tests/pages/login.js
-```
-
-```js
-// app-name/tests/pages/login.js
-
-import { create, visitable } from 'ember-cli-page-object';
-
-import LoginForm from './components/login-form';
-
-export default create({
-  visit: visitable('/dashboard'),
-
-  scope: '[data-test-login-page]',
-
-  form: LoginForm
-});
-```
-
-We can now write our Application tests:
-
-```js
-import dashboardPage from 'app-name/tests/pages/dashboard';
-import loginPage from 'app-name/tests/pages/login';
-
-// test setup here...
-
-test(`Dashboard requires authentificated user`, async function(assert) {
-  await dashboardPage.visit();
-
-  assert.notOk(dashboardPage.isVisible);
-  assert.ok(loginPage.isVisible);
-});
-
-test(`Redirects to the Dashboard after sucessful authentification`, async function(assert) {
-  await loginPage
-    .visit()
-    .submit({
-      username: 'Username',
-      password: 'Secret'
-    });
-
-  assert.ok(dashboardPage.isVisible);
-  assert.notOk(loginPage.isVisible);
-});
-```
-
-And that’s it! Now our tests are flexible, expressible and maintainable.
-
-## Interperability
-
-And last but not least. The nature of EmberCLI Page Object allows us to easily switch different test helpers implementations without any changes required in the page objects itself.
-
-For example you can transition from the Ember 2 style `ember-test-helpers` to the Ember 3 `@ember/test-helpers` literally for free. EmberCLI Page Object would take care to select a proper test helpers implementation based on the current test module type!
-
-The only caveat you shoud be aware of is the additional API for Ember 2 Integration tests. In order to enable it you have to `setContext`:
-
-```js
-moduleForComponent('login-form', 'Integration | login form', {
-  integration: true,
-
-  beforeEach() {
-    // This would tell EmberCLI Page Object to enable integration tests mode
-    page.setContext(this);
-  },
-
-  afterEach() {
-    // you should also remove context
-    // in order to avoid side effects in the following tests
-    page.removeContext();
-  }
-});
-
-test('it successfully submits', async function(assert) {
-  await render(hbs`{{login-form}}`);
-
-  await form.username.fillIn('Username')
-  await form.password.fillIn('Invalid Password')
-  await form.submitButton.click();
-
-  assert.notOk(form.username.hasError);
-  assert.notOk(form.username.errorMessage.isVisible);
-
-  assert.notOk(form.password.hasError);
-  assert.notOk(form.password.errorMessage.isVisible);
-});
-```
 
 {% endraw %}
