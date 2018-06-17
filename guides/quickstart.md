@@ -107,9 +107,7 @@ test('it renders', async function(assert) {
   await render(`{{awesome-list items=this.items}}`);
 
   assert.equal(awesomeList.items.length, 1);
-  assert.equal(awesomeList.items[0].title, 'Some title');
-
-  assert.ok(awesomeList.items[0].updatedAt.isVisible);
+  assert.equal(awesomeList.items[0].title.text, 'Some title');
 });
 ```
 
