@@ -4,46 +4,131 @@ title: Quickstart
 ---
 
 {% raw %}
-This is a short guide to get you started writing page objects and using them in your tests.
 
-- [The Challenge](#the-challenge)
-- [Modeling Components](#modeling-components)
-- [Macroses](#macroses)
-- [Higher Order Methods](#higher-order-methods)
-- [Application Tests](#application-tests)
-- [Interoperability](#interoperability)
+In terms of EmberCLI Page Object each page can be divided into components and collections which are are a general Page Object building blocks.
 
-## The Challenge
+Suppose we have a simple component with a following markup:
+
+```html
+<article class="AwesomeItem">
+  {{#link-to "awesome.items" @article.id
+    class="AwesomeItem-title"
+  }}
+    <h3>{{@article.title}}</h3>
+  {{/link-to}}
+
+  <ul class="AwesomeItem-badges">
+    {{#each @article.badges as |b|}}
+      <li class="Badge--{{b.tone}}">{{b.title}}</li>
+    {{/each}}
+  </ul>
+
+  <span class="AwesomeItem-lastUpdated">{{@article.updatedAt}}</span>
+</article
+
+```
+
+Each component should have a css `scope` defined:
+
+```js
+const component = create({
+  scope: '.AwesomeItem',
+
+  title: {
+    scope: '.AwesomeItem-title'
+  },
+
+  updatedAt: {
+    scope: '.AwesomeItem-lastUpdated'
+  }
+}); 
+```
+
+It allows us to query DOM:
+
+```js
+test('it renders', async function(assert) {
+  this.article = {
+    title: 'Expected Title',
+    updatedAt: 'Sun Jun 17 2018'
+  };
+
+  await render(`{{awesome-item
+    @article=this.article
+  }}`);
+
+  assert.ok(component.isVisible);
+  assert.equal(component.title.text, 'Expected Title');
+  assert.equal(component.updatedAt.text, 'Sun Jun 17 2018');
+});
+```
+
+In order to define collections you also need to pass a `scope` as a first argument.
+
+```js
+  {
+    // ...
+
+    badges: collection('.AwesomeItem-badges')
+  }
+```
+
+now we can itenteract with a badges list items:
+
+```js
+test('it renders', async function(assert) {
+  this.article = this.server.create('article', {
+    badges: [{
+      tone
+    }]
+  };
+
+  await render(`{{awesome-item
+    @article=this.article
+  }}`);
+
+  assert.ok(component.isVisible);
+  assert.equal(component.title.text, 'Expected Title');
+  assert.equal(component.updatedAt.text, 'Sun Jun 17 2018');
+});
+```
+
+```js
+  assert.equal(component.badges.length, 0);
+```
+
+
+ `title`, list of `badges`simple login form component with the following result markup:
+
 
 Suppose we have a simple login form component with the following result markup:
+
+
+Let's consider a generic search page with a search form and a result view. This would cover most of the EmberCLI Page Object concepts.
 
 ```html
 <div class="AwesomeList">
   <form data-test-search>
-    <label for="awesome-search-input">
-      User search:
-    </label>
+    <label for="awesome-search-input">User search:</label>
 
     <input id="awesome-search-input" />
 
     <button>GO</button>
   </form>
 
-  <ul data-test-list>
-    <li>
-      <h3>{{this.username}}</h3>
-      <fieldset>
-        {{!-- whatewher --}}
-      </fieldset>
+  <ul>
+      <li data-test-awesome-item>
+        <span data-score={{a.score}} class="score {{#if a.wip}}wip{{/if}}"></span>
 
-      {{link-to "like" {{id"}}Edit{{/link-to}}
-    </li>
-  </ul>
+        <ul data-test-categories>
+          {{#each a.categories as |category|}}
+            <li>{{category.tag}}</li>
+          {{/each}}
+        </ul>
 
-  <ul data-test-pager >
-    <li><a>1</a></li>
-    <li><a>2</a></li>
-    <li><a>>></a></li>
+        <span class="last-updated">{{a.date}}</span>
+      </li>
+    {{/each}}
   </ul>
 </div>
 ```
