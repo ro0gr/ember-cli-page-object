@@ -11,7 +11,7 @@ title: Quickstart
 $ ember install ember-cli-page-object
 ```
 
-## Components
+## Declating components
 
 Components are the main building blocks in the EmberCLI Page Object. You can create one by running a component generator:
 
@@ -22,7 +22,7 @@ installing
   create tests/pages/components/search-form.js
 ```
 
-Each component requires a css `scope` to be definied:
+The only required component option is a css `scope`:
 
 ```js
 // project-name/tests/pages/components/search-form.js
@@ -30,8 +30,12 @@ Each component requires a css `scope` to be definied:
 export default {
   scope: 'form.SearchForm',
 
-  input: {
-    scope: 'input.[data-test-input-field]'
+  field: {
+    scope: '[data-test-search-field]',
+    
+    input: {
+      scope: 'input'
+    },
   },
 
   submitButton: {
@@ -40,7 +44,7 @@ export default {
 }
 ```
 
-Each component is supplied with a list of default properties and actions which can be used right after the page object instance is created:
+Scopes allows us to query a DOM via Page Object interface. Right after a component creation you can access a set of actions and properties provided by [default](./api/components#default-attributes).
 
 ```js
 import { create } from 'ember-cli-page-object';
@@ -48,26 +52,75 @@ import SearchForm from 'project-name/tests/pages/components/search-form';
 
 const searchForm = create(SearchForm);
 
-test('it renders', async function(assert) {
-  await render(`{{search-form}}`);
-
-  assert.ok(searchForm.isVisible);
-});
-
-test('it can submit', async function(assert) {
+test('it submits', async function(assert) {
+  // @todo: use sinon or testdouble
   let actualText;
   this.onSubmit = (searchText) => { actualText = searchText; }
 
   await render(`{{search-form onSubmit=(action this.onSubmit)}}`);
 
-  await searchForm.input.fillIn('search text');
+  assert.ok(searchForm.isVisible);
+
+  await searchForm.field.input.fillIn('search text');
   await searchForm.submitButton.click();
 
   assert.equal(actualText, 'search text')
 });
 ```
 
-In order to describe a list of components a `collection` should be used:
+## Customizing Components
+
+Components can be extended w
+You can also configure properties in order to hide a page object hierarchy complexity:
+
+```js
+import {
+  attribute,
+  fillable,
+  clickable,
+  hasClass
+} from 'ember-cli-page-object';
+
+export default {
+  scope: 'form.SearchForm',
+  
+  field: {
+    scope: '[data-test-search-field]',
+    
+    fillIn: fillable('input'),
+
+    isFocused: hasClass('has-focus')
+
+    isDisabled: attribute('disabled')
+  },
+
+  submit: clickable('button')
+}
+```
+
+Then the previous test can be re-written as:
+
+```js
+test('it submits', async function(assert) {
+  let actualText;
+  this.onSubmit = (searchText) => { actualText = searchText; }
+
+  await render(`{{search-form onSubmit=(action this.onSubmit)}}`);
+
+  // Fill in "form.SearchForm [data-test-search-field] input" element
+  await searchForm.field.fillIn('search text');
+
+  // click "form.SearchForm button" element
+  await searchForm.submit();
+
+  assert.equal(actualText, 'search text')
+});
+```
+
+## Collections
+
+
+In order to describe a List of components `collection` should be used:
 
 ```js
 // project-name/tests/pages/components/awesome-list.js
@@ -82,7 +135,7 @@ export default {
       scope: '.AwesomeItem-title'
     },
 
-    badges: collection('.AwesomeBadges'),
+    badges: collection('ul.AwesomeBadges li'),
 
     updatedAt: {
       scope: '.AwesomeItem-lastUpdated'
@@ -100,9 +153,11 @@ import AwesomeList from 'project-name/tests/pages/components/awesome-list';
 const awesomeForm = create(AwesomeList);
 
 test('it renders', async function(assert) {
-  this.items = this.server.createList('awesome-item', [{
-    title: 'Some title'
-  }])
+  this.items = [
+    await run(() => this.store.createRecord('awesome-item', {
+      title: 'Some title'
+    }))
+  ];
 
   await render(`{{awesome-list items=this.items}}`);
 
@@ -110,8 +165,6 @@ test('it renders', async function(assert) {
   assert.equal(awesomeList.items[0].title.text, 'Some title');
 });
 ```
-
-By composing components and collections together you can describe very complex components hierarchies.
 
 
 {% endraw %}
