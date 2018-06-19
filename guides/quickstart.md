@@ -166,5 +166,62 @@ test('it renders', async function(assert) {
 });
 ```
 
+## Application Tests
+
+In the end you can include your page object components into a top-level page objects which are generally used in the application(acceptance) tests.
+
+There is also a generator for creating top-level page objects:
+
+```bash
+$ ember generate page-object search-page
+
+installing
+  create tests/pages/search-page.js
+```
+
+Let's include our `SearchForm` and `AwesomeList` components into our new page object:
+
+```js
+import { create, visitable } from 'ember-cli-page-object';
+import SearchForm from './components/search-form';
+import AwesomeList from './components/awesome-list';
+
+export default create({
+  visit: visitable('/search'),
+
+  scope: '.SearchPage',
+
+  form: SearchForm,
+
+  list: AwesomeList,
+
+  search(text) {
+    await this.form.field.fillIn(text);
+
+    await this.form.submit();
+  }
+})
+```
+
+Now let's write our application test:
+
+```js
+import searchPage from 'project-name/tests/pages/search-page';
+
+test('it searches', async function(assert) {
+  this.items = this.server.createList('awesome-item', [{
+    title: 'Some title'
+  }, {
+    title: 'Some text'
+  }])
+
+  await searchPage.visit();
+  await searchPage.search('text');
+
+  assert.equal(searchPage.list.length, 1);
+  assert.equal(searchPage.list[0].title, 'Some text');
+});
+```
+
 
 {% endraw %}
