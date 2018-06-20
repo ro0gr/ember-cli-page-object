@@ -168,9 +168,9 @@ test('it renders', async function(assert) {
 
 ## Application Tests
 
-In the end you can include your page object components into a top-level page objects which are generally used in the application(acceptance) tests.
+Application tests are not much different from the component tests. The only difference from the EmberCLI Page Object perpective is an availability of a visitable property.
 
-There is also a generator for creating top-level page objects:
+Let's generate a page object containing our `SearchForm` and `AwesomeList` components with an ability to visit a page in the application tests mode:
 
 ```bash
 $ ember generate page-object search-page
@@ -179,10 +179,11 @@ installing
   create tests/pages/search-page.js
 ```
 
-Let's include our `SearchForm` and `AwesomeList` components into our new page object:
-
 ```js
+// project-name/tests/pages/search-page.js
+
 import { create, visitable } from 'ember-cli-page-object';
+
 import SearchForm from './components/search-form';
 import AwesomeList from './components/awesome-list';
 
@@ -195,6 +196,7 @@ export default create({
 
   list: AwesomeList,
 
+  // we can also express a sequence of actions or queries with page object methods
   search(text) {
     await this.form.field.fillIn(text);
 
@@ -223,5 +225,44 @@ test('it searches', async function(assert) {
 });
 ```
 
+## "moduleFor" test helpers
+
+In general EmberCLI Page Object definitions can be used accross the different test types and different test-helpers implementations without any page object definitions changes required.
+However there is a caveat with a `moduleForComponent`. In order to instruct EmberCLI Page Object to enable `moduleForComponent` mode you should use `setupContext` on your page object:
+
+```js
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+
+import form from 'project-name/tests/pages/components/search-form';
+
+moduleForComponent('AwesomeList', 'Integration | AwesomeList', {
+  integration: true,
+
+  beforeEach() {
+    page.setContext(this);
+  },
+
+  afterEach() {
+    page.removeContext();
+  }
+});
+
+
+test('it renders', function(assert) {
+  this.items = [
+    // @todo: check if it's working
+    this.store.createRecord('awesome-item', {
+      title: 'Some title'
+    })
+  ];
+
+  render(`{{awesome-list items=this.items}}`);
+
+  assert.equal(awesomeList.items.length, 1);
+  assert.equal(awesomeList.items[0].title.text, 'Some title');
+}
+
+```
 
 {% endraw %}
