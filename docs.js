@@ -262,7 +262,7 @@ function removeDir(dir) {
   var guidesDir = path.join(__dirname, 'guides');
 
   const apiSourcesPaths = walkSync('.', {
-    globs: ['addon-test-support/{create.js,properties/*.js,macros/*.js}' ]
+    globs: ['addon-test-support/{create.js,properties/*.js,macros/*.js,extend/*.js}' ]
   });
 
   // Create the temporary directory for the docs
