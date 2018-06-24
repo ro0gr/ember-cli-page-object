@@ -6,8 +6,7 @@ title: Components
 Group attributes and create new ones
 
 * [Components](#components)
-* [Default attributes](#default-attributes)
-* [Custom helper](#custom-helper)
+
 * [Scopes](#scopes)
 
 ## Components
