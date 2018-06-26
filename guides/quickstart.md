@@ -30,7 +30,7 @@ installing
   create tests/pages/components/search-form.js
 ```
 
-The only required component option is a css `scope`:
+Let's create a Page Object Component definition for a search form:
 
 ```js
 // project-name/tests/pages/components/search-form.js
@@ -52,7 +52,10 @@ export default {
 }
 ```
 
-Scopes allows us to query a DOM via Page Object interface. Right after a component creation you can access a set of actions and properties provided by [default](./api/components#default-attributes).
+A `scope` attribte allows to query DOM and interact UI elements via Page Object interface.
+
+Each fresh component has a set of useful attributes [default](./api/components#default-attributes).
+By default Right after a component creation you can access a set of actions and properties provided by [default](./api/components#default-attributes).
 
 ```js
 import { create } from 'ember-cli-page-object';
@@ -78,7 +81,7 @@ test('it submits', async function(assert) {
 
 ## Properties
 
-Component API can be extended with a rich set of properties and actions. By default all the properties and actions inherit a parent component `scope` but you can specify a custom `scope` for it.
+Component API can also be extended with a rich set of properties and actions. By default all the properties and actions inherit a parent component `scope` but you can specify a custom `scope` for it.
 
 ```js
 import {
@@ -94,13 +97,19 @@ export default {
   field: {
     scope: '[data-test-search-field]',
     
+    // fills in "form.SearchForm [data-test-search-field] input"
     fillIn: fillable('input'),
 
+    // checks if 'has-focus' class exists on the
+    // "form.SearchForm [data-test-search-field]" element
     isFocused: hasClass('has-focus')
 
+    // checks if 'disabled' class exists on the
+    // "form.SearchForm [data-test-search-field]" element
     isDisabled: attribute('disabled')
   },
 
+  // clicks on "form.SearchForm button" element
   submit: clickable('button')
 }
 ```
@@ -118,12 +127,9 @@ test('it submits', async function(assert) {
 
   assert.ok(searchForm.isVisible);
 
-  // Fill in "form.SearchForm [data-test-search-field] input" element
   await searchForm.field.fillIn('search text');
 
-  // click "form.SearchForm button" element
   await searchForm.submit();
-
 });
 ```
 
