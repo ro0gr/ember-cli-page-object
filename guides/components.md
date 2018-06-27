@@ -31,6 +31,8 @@ assert.equal(f.magic.isVisible, true);
 
 Scope is calculated when you access some compmonent attributes like `isVisible`, `click`, etc,. If few DOM nodes are matched an exception occurs.
 
+For more details on building a selector please take a look at [Query Options](./query-options) page.
+
 ## Attributes
 
 We can also define attributes on a component as follows:
@@ -61,7 +63,7 @@ assert.ok(page.datum.hasError, 'Input has an error');
 
 All components are supplied with default attributes without being explicitly declared. 
 
-Here is a list of all component default attributes:
+Here is a comprehensive list of component default attributes:
 
 * [as](./api/as)
 * [blur](./api/blur)
