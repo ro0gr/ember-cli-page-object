@@ -6,7 +6,7 @@ title: Quickstart
 {% raw %}
 
 * [Installation](#installation)
-* [Components](#components)
+* [Search Form](#components)
 * [Properties](#properties)
 * [Collections](#collections)
 * [Application Tests](#application-tests)
@@ -19,9 +19,19 @@ title: Quickstart
 $ ember install ember-cli-page-object
 ```
 
-## Components
+## Component Definition
 
-Components are the main building blocks in the EmberCLI Page Object. You can create one by running a component generator:
+Suppose we have a simple search form with the following HTML markup:
+
+```html
+<form class="SearchForm">
+  <input type="search" placeholder="Search it!">
+
+  <button>Search</button>
+</form>
+```
+
+Use `page-object-component` blueprint to quickly generate a placeholder for component definition :
 
 ```bash
 $ ember generate page-object-component search-form
@@ -30,7 +40,7 @@ installing
   create tests/pages/components/search-form.js
 ```
 
-Let's create a Page Object Component definition for a search form:
+Let's describe a search form with a page object definition:
 
 ```js
 // project-name/tests/pages/components/search-form.js
@@ -38,12 +48,8 @@ Let's create a Page Object Component definition for a search form:
 export default {
   scope: 'form.SearchForm',
 
-  field: {
-    scope: '[data-test-search-field]',
-    
-    input: {
-      scope: 'input'
-    },
+  input: {
+    scope: 'input[type="search"]'
   },
 
   submitButton: {
@@ -52,89 +58,39 @@ export default {
 }
 ```
 
-A `scope` attribte allows to query DOM and interact UI elements via Page Object interface.
-
-Each fresh component has a set of useful attributes [default](./api/components#default-attributes).
-By default Right after a component creation you can access a set of actions and properties provided by [default](./api/components#default-attributes).
+Now we can use our definition in tests:
 
 ```js
+// First we need to create a page object instance from the definition
 import { create } from 'ember-cli-page-object';
 import SearchForm from 'project-name/tests/pages/components/search-form';
 
-const searchForm = create(SearchForm);
+const form = create(SearchForm);
 
-test('it submits', async function(assert) {
-  assert.expect(2);
+test('it renders empty', async function(assert) {
+  await render(`{{search-form}}`);
 
-  this.onSubmit = function(searchText) {
-    assert.equal(searchText, 'search text')
-  }
+  assert.ok(form.isVisible);
+  assert.equal(form.input.value, '');
+  assert.equal(form.submitButton.text, 'Search');
+});
 
-  await render(`{{search-form onSubmit=(action this.onSubmit)}}`);
+test('submit', async function(assert) {
+  this.onSubmit = = sinon.spy();
+  await render(`{{search-form
+    onSubmit=(action this.onSubmit)
+  }}`);
 
-  assert.ok(searchForm.isVisible);
+  await form.field.fillIn('search text');
+  await form.searchButton.click();
 
-  await searchForm.field.input.fillIn('search text');
-  await searchForm.submitButton.click();
+  assert.ok(this.onSubmit.calledWith('search text'))
 });
 ```
 
-## Properties
+We just have used few component [default attributes](./api/components#default-attributes) like `isVisible`, `fillIn`, `value`, and others. For the comprehensive list of all attributes available please see API documentation.
 
-Component API can also be extended with a rich set of properties and actions. By default all the properties and actions inherit a parent component `scope` but you can specify a custom `scope` for it.
-
-```js
-import {
-  attribute,
-  fillable,
-  clickable,
-  hasClass
-} from 'ember-cli-page-object';
-
-export default {
-  scope: 'form.SearchForm',
-  
-  field: {
-    scope: '[data-test-search-field]',
-    
-    // fills in "form.SearchForm [data-test-search-field] input"
-    fillIn: fillable('input'),
-
-    // checks if 'has-focus' class exists on the
-    // "form.SearchForm [data-test-search-field]" element
-    isFocused: hasClass('has-focus')
-
-    // checks if 'disabled' class exists on the
-    // "form.SearchForm [data-test-search-field]" element
-    isDisabled: attribute('disabled')
-  },
-
-  // clicks on "form.SearchForm button" element
-  submit: clickable('button')
-}
-```
-
-Then the previous test can be re-written as:
-
-```js
-test('it submits', async function(assert) {
-  assert.expect(2);
-  this.onSubmit = function(searchText) {
-    assert.equal(searchText, 'search text')
-  }
-
-  await render(`{{search-form onSubmit=(action this.onSubmit)}}`);
-
-  assert.ok(searchForm.isVisible);
-
-  await searchForm.field.fillIn('search text');
-
-  await searchForm.submit();
-});
-```
-
-## Collections
-
+# Simple list
 
 In order to describe a List of components `collection` should be used:
 

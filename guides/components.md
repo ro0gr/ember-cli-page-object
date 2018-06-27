@@ -7,9 +7,7 @@ title: Components
 
 ---
 
-Components is a representation of some logical part a User Interface. It allows you to divide a complex pages or components into smaller composable components which makes it easier to manage different test scenarios.
-
-Component definitions are just plain objects with attributes on it. To make definition ready to use component a page object instance should be created from the definition via `create` function:
+Components is a way to describe some functional part of the DOM with a convenient API. Component definitions are just plain objects with attributes on it. Component definition requires a CSS `scope` to be declared in order to be mapped to an appropriate DOM Element:
 
 ```js
 import { create } from 'ember-cli-page-object';
@@ -19,22 +17,34 @@ const myInput = create({
 });
 ```
 
-## Attributes
-By default, each component is supplied with some handy attributes, methods and actions without being explicitly declared:
+Nested components inherit a parent scope when its attribute queried:
 
 ```js
-  test('heading', async function(assert) {
-    await render(hbs`<input>`)
+const myForm = create({
+  scope: '.MyForm',
 
-    assert.equal(myInput.isVisible, true);
+  magicButton: {
+    scope: '.MagicButton'
+  }
+});
 
-    await myInput.fillIn('something');
-
-    assert.equal(myInput.value, 'something');
-  });
+// `magicButton` has a concatenated CSS selector: ".MyForm .MagicButton"
+assert.equal(myForm.magicButton.isVisible, true);
 ```
 
-  Here is a full list of default component attributes:
+## Attributes
+
+Each component is supplied with some handy attributes, methods and actions without being explicitly declared:
+
+```js
+  await render(hbs`<input>`);
+
+  await myInput.fillIn('some text');
+
+  assert.equal(myInput.text, 'some text');
+```
+
+Component supports the following default attributes:
 
 * [as](./api/as)
 * [blur](./api/blur)
@@ -50,60 +60,27 @@ By default, each component is supplied with some handy attributes, methods and a
 * [text](./api/text)
 * [value](./api/value)
 
-Default attributes can be overriden or extended with an explicit attribute definitions. Let's say we have an input Ember component see how a plain `<input>` can be described with a component:
-
-```html
-<div data-test-input="firstName" class="has-error">
-  <label for="firstName">First Name:</label>
-  <input id="firstName" />
-  <span class="error-message"></span>
-</div>
-```
+You can also extend a component behavior with custom attributes:
 
 ```js
-
-// package-name/tests/pages/components/input.js
 import {
+  create,
+  attribute,
   hasClass,
-  is,
   property,
-  triggerable
+  triggeratble
 } from 'ember-cli-page-object';
 
-export default {
+const myInput = create({
   scope: 'input',
 
-  hasMouseOver: is(':hover'),
-
-  hasError: hasClass('has-error'),
+  isDisabled: attribute('placeholder'),
 
   isDisabled: property('disabled'),
 
+  hasFocus: hasClass('has-focus'),
+
   mouseEnter: triggerable('mouseenter')
-};
-```
-
-And write a dummy tests just for demonstration purpose:
-
-```js
-import { create } from 'ember-cli-page-object'; 
-import InputDefinition from 'package-name/tests/pages/components/input'; 
-
-const input = create(InputDefinition);
-
-test("it renders", async function(assert) {
-  await render(hbs`<input>`);
-
-  assert.equal(input.isDisabled, false);
-  assert.equal(input.hasError, false);
-});
-
-test("Uses mouseEnter action", async function(assert) {
-  await render(hbs`<input>`);
-
-  await input.mouseEnter();
-
-  assert.equal(input.hasMouseOver, true);
 });
 ```
 
@@ -240,12 +217,12 @@ __Example Markup__
   </div>
 
   <div data-test-lastName class="has-error">
-    <label for="lastName">Last Name:</label>
-    <input id="lastName" />
+    <label for="password">Last Name:</label>
+    <input id="password" />
     <span class="error-message"></span>
   </div>
 
-  <button>Create</button>
+  <button>Login</button>
 </form>
 ```
 
