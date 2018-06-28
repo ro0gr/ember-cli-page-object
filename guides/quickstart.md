@@ -12,85 +12,87 @@ title: Quickstart
 * [Application Tests](#application-tests)
 * [moduleFor test helpers](#moduleFor-test-helpers)
 
-
 ## Installation
 
 ```bash
 $ ember install ember-cli-page-object
 ```
 
-## Component Definition
+## Component
 
-Suppose we have a simple search form with the following HTML markup:
+Suppose we have a very simple search form with an optional `has-error` class in the root:
 
 ```html
-<form class="SearchForm">
-  <input type="search" placeholder="Search it!">
+<form class="has-error">
+  <input type="search">
 
-  <button>Search</button>
+  <button>Search :tada:</button>
 </form>
 ```
 
-Use `page-object-component` blueprint to quickly generate a placeholder for component definition :
+Let's generate a dummy component definition:
 
 ```bash
-$ ember generate page-object-component search-form
+$ ember generate page-object-component quick-search
 
 installing
-  create tests/pages/components/search-form.js
+  create tests/pages/components/quick-search.js
 ```
 
-Let's describe a search form with a page object definition:
+Now we can descibe the form as follows:
 
 ```js
-// project-name/tests/pages/components/search-form.js
+// project-name/tests/pages/components/quick-search.js
+
+import { hasClass } from 'ember-cli-page-object';
 
 export default {
-  scope: 'form.SearchForm',
+  scope: 'form',
 
-  input: {
-    scope: 'input[type="search"]'
+  hasError: hasClass('has-error')
+
+  text: {
+    scope: 'input[type="search"]',
   },
 
-  submitButton: {
+  submit: {
     scope: 'button'
   }
-}
+};
 ```
 
-Now we can use our definition in tests:
+In tests a page object instance should be created from the definition:
 
 ```js
-// First we need to create a page object instance from the definition
 import { create } from 'ember-cli-page-object';
-import SearchForm from 'project-name/tests/pages/components/search-form';
+import QuickSearch from 'project-name/tests/pages/components/quick-search';
 
-const form = create(SearchForm);
+const search = create(QuickSearch);
+```
 
-test('it renders empty', async function(assert) {
-  await render(`{{search-form}}`);
+Now we are able to test out form:
 
-  assert.ok(form.isVisible);
-  assert.equal(form.input.value, '');
-  assert.equal(form.submitButton.text, 'Search');
+```js
+test('it renders', async function(assert) {
+  await render(`{{quick-search text="some"}}`);
+
+  search.as(s => {
+    assert.ok(s.isVisible);
+    assert.equal(s.text.value, 'some');
+    assert.equal(s.submitBotton.text, 'Search :tada:');
+  });
 });
 
-test('submit', async function(assert) {
-  this.onSubmit = = sinon.spy();
-  await render(`{{search-form
-    onSubmit=(action this.onSubmit)
-  }}`);
+test('it requires text on submit', async function(assert) {
+  await render(hbs`{{my-search}}`);
 
-  await form.field.fillIn('search text');
-  await form.searchButton.click();
+  await search.submitButton.click();
 
-  assert.ok(this.onSubmit.calledWith('search text'))
+  assert.ok(search.hasError)
 });
 ```
 
-We just have used few component [default attributes](./api/components#default-attributes) like `isVisible`, `fillIn`, `value`, and others. For the comprehensive list of all attributes available please see API documentation.
-
-# Simple list
+# Search list
 
 In order to describe a List of components `collection` should be used:
 
@@ -195,46 +197,6 @@ test('it searches', async function(assert) {
   assert.equal(searchPage.list.length, 1);
   assert.equal(searchPage.list[0].title, 'Some text');
 });
-```
-
-## moduleFor test helpers
-
-In general EmberCLI Page Object definitions can be used accross the different test types and different test-helpers implementations without any page object definitions changes required.
-However there is a caveat with a `moduleForComponent`. In order to instruct EmberCLI Page Object to enable `moduleForComponent` mode you should use `setupContext` on your page object:
-
-```js
-import { moduleForComponent, test } from 'ember-qunit';
-import hbs from 'htmlbars-inline-precompile';
-
-import form from 'project-name/tests/pages/components/search-form';
-
-moduleForComponent('AwesomeList', 'Integration | AwesomeList', {
-  integration: true,
-
-  beforeEach() {
-    page.setContext(this);
-  },
-
-  afterEach() {
-    page.removeContext();
-  }
-});
-
-
-test('it renders', function(assert) {
-  this.items = [
-    // @todo: check if it's working
-    this.store.createRecord('awesome-item', {
-      title: 'Some title'
-    })
-  ];
-
-  render(`{{awesome-list items=this.items}}`);
-
-  assert.equal(awesomeList.items.length, 1);
-  assert.equal(awesomeList.items[0].title.text, 'Some title');
-}
-
 ```
 
 {% endraw %}
