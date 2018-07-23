@@ -77,14 +77,11 @@ Finally we can test our form:
 test('it renders', async function(assert) {
   await render(`{{quick-search text="some"}}`);
 
-  search.as(s => {
-    assert.ok(s.isVisible);
-    assert.equal(s.text.value, 'some');
-    assert.equal(s.submitButton.text, 'Search');
-  });
+  assert.equal(search.text.value, 'some');
+  assert.equal(search.submitButton.text, 'Search');
 });
 
-test('it requires text on submit', async function(assert) {
+test('it requires text', async function(assert) {
   await render(hbs`{{my-search}}`);
 
   await search.submitButton.click();
@@ -95,7 +92,7 @@ test('it requires text on submit', async function(assert) {
 
 ## Creating a Page Object
 
-Now let's test a search page which includes a QuickSearch form from the previous example and a simple results list with a title and desciption for each result item:
+Now let's test a search page which includes a `QuickSearch` form from the previous example and a simple results list:
 
 ```html
 <section class="SearchPage">
@@ -107,7 +104,11 @@ Now let's test a search page which includes a QuickSearch form from the previous
 
   <ul>
     <li>
-      <h5>Title...</h5>
+      <h5>Title #1...</h5>
+      <p>Description here...</p>
+    </li>
+    <li>
+      <h5>Title #2...</h5>
       <p>Description here...</p>
     </li>
   </ul>
@@ -143,9 +144,13 @@ export default create({
 
   form: Form,
 
-  results: collection('ul li', {
-    title: 'h5',
-    description: 'p'
+  results: collection('ul>li', {
+    title: {
+      scope: 'h5'
+    },
+    description: {
+      scope: 'p'
+    }
   }),
 
   // Let's also provide a shorhand for the search form submit
