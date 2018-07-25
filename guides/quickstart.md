@@ -5,8 +5,10 @@ title: Quickstart
 
 {% raw %}
 
+This is a short guide to break apart the process of testing with EmberCLI Page Object.
+
 * [Installation](#installation)
-* [Creating a Component](#creating-a-component)
+* [Definitions](#definitions)
 * [Creating a Page Object](#creating-a-page-object)
 
 ## Installation
@@ -15,19 +17,19 @@ title: Quickstart
 $ ember install ember-cli-page-object
 ```
 
-## Creating a Component
+That’s it!
 
-Suppose we have a very simple search form:
+## Definitions
+
+Suppose we have a simple search form:
 
 ```html
-<form class="hasError">
+<form class="{{if hasError 'hasError'}}">
   <input type="search">
 
   <button>Search</button>
 </form>
 ```
-
-The form also supports `has-error` class when user does submit with an empty search text.
 
 Let's generate a dummy component definition:
 
@@ -162,9 +164,7 @@ export default create({
 })
 ```
 
-In comparison to components which are plain JS definitions, page objects are ready to use instances.
-
-It means can just import and use it in tests:
+In comparison to components which are plain JS definitions, page objects are ready to use instances, so we don't need to `create`.
 
 ```js
 import searchPage from 'project-name/tests/pages/search';
