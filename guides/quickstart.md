@@ -41,7 +41,7 @@ First let's consider a search page with the following markup:
 </section>
 ```
 
-Here is how an application test for this page might look:
+Here is how standard Ember Application Test for this page might look:
 
 ```js
 test('it searches', async function(assert) {
@@ -49,9 +49,10 @@ test('it searches', async function(assert) {
     { title: 'Awesome Title' },
     { title: 'Other Title' }
   ]);
+  const searchText = 'some';
 
   await visit('/search');
-  await fillIn('.SearchPage form [type=search]', 'some');
+  await fillIn('.SearchPage form [type=search]', searchText);
   await click('.SearchPage form button');
 
   assert.dom('.SearchPage ul li').exists({ count: 1 });
@@ -136,7 +137,7 @@ test('it submits search text', async function(assert) {
     assert.equal(text, 'Search Text');
   }
 
-  await render(hbs`{{my-search onSubmit=(action onSubmit)}}`);
+  await render(hbs`{{search-form onSubmit=(action onSubmit)}}`);
 
   // "fillIn" is a default component action
   await search.text.fillIn('Search Text');
@@ -207,7 +208,7 @@ And few collection instance usage examples:
 // ...
 assert.equals(page.results.length, 2);
 assert.equals(page.results[0].title.text, 'Title #1');
-assert.equals(page.results[0].filter(i => i.contains('Description here...')).length, 2);
+assert.equals(page.results.filter(i => i.contains('Description here...')).length, 2);
 ```
 
 ## Page Object
