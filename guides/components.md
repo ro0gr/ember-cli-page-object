@@ -3,7 +3,7 @@ layout: page
 title: Components
 ---
 
-Components is a way to describe some functional part of the DOM with a convenient API. You can compose a component from the other components, attributes and methods to achieve a great level of reusability.
+Describe some functional part of a DOM.
 
 * [Scopes](#scopes)
 * [Attributes](#attributes)
@@ -11,27 +11,35 @@ Components is a way to describe some functional part of the DOM with a convenien
 
 ## Scopes
 
-Each component has a CSS selector `scope` attribute which identifies a corresponding DOM element.
+CSS selector `scope` attribute is used to find a corresponding DOM Element.
 
 ```js
 import { create } from 'ember-cli-page-object';
 
-const f = create({
-  scope: '.AnArticle',
+const a = create({
+  scope: 'article',
 
   title: {
-    scope: '.AnArticle-title'
+    scope: '[data-test-title]'
+  },
+
+  teaser: {
+    scope: '[data-test-teaser]',
+  },
+
+  showMore: {
+    scope: 'a.show-more'
   }
 });
-
-assert.ok(f.title.text); 
 ```
 
-A result query selector of `f.title` would be a nested scope selector ".SomeCard .SomeCard-title"
+Parent scope is encountered when building a final selector:
 
-You can also reset a scope
+```js
+assert.ok(a.title.text); // => '#ember-testing article [data-test-title]'
+```
 
-Scope is calculated when you access some compmonent attributes like `isVisible`, `click`, etc,. If few DOM nodes are matched an exception occurs.
+would search for text property of the element with "article [data-test-title]" CSS path.
 
 For more details for configuring a query selector please take a look at [Query Options](./query-options) page.
 
@@ -45,8 +53,8 @@ import { hasClass, clickable } from 'ember-cli-page-object';
 const page = create({
   scope: 'form',
 
-  input: {
-    scope: '[data-test-datum]',
+  datum: {
+    scope: 'input[name="datum"]',
 
     hasError: hasClass('has-error'),
   },
