@@ -3,7 +3,7 @@ layout: page
 title: Query-Options
 ---
 
-You can adjust component query selector with the following options:
+You can adjust component and attributes query selector with the following options:
 
 * [scope](#scope)
 * [resetScope](#resetScope)
@@ -19,24 +19,25 @@ within the inherited scope.
 Given the following HTML
 
 ```html
-<div class="page">
-  <div class="article">
-    <p>Lorem ipsum dolor</p>
-  </div>
-  <div class="footer">
-    <p>Copyright 2016 - Acme Inc.</p>
-  </div>
-</div>
+<article>
+  <p>Lorem ipsum dolor</p>
+</article>
+
+<footer>
+  <p>Copyright 2016 - Acme Inc.</p>
+</footer>
 ```
 
 the following configuration will match the footer element
 
 ```js
 const page = create({
-  scope: '.page',
+  article: {
+    scope: 'article'
+  },
 
   copyrightNotice: {
-    scope: '.footer'
+    scope: 'footer'
   }
 });
 
@@ -67,20 +68,17 @@ assert.ok(form.dialog.isVisible);
 
 ## testContainer
 
-Sometimes components may render outside of standard test container which defaults to `#ember-testing`. In such cases you can specify a custom query root element:
+In case you have a component which renders outside of regular test container you can adjust a root node to find from with `testContainer` option:
 
 ```js
-import { create, text } from 'ember-cli-page-object';
+import { create } from 'ember-cli-page-object';
 
-const page = create({
-  scope: '.scope',
-  modal: {
-    scope: '.Modal',
-    testContainer: 'body'
-  }
+const t = create({
+  scope: '.tooltip'
+  testContainer: 'body'
 });
 
-assert.ok(page.modal.contains('Lorem')); 
+assert.equal(t.text, 'Lorem tooltip'); 
 ```
 
 ## multiple
