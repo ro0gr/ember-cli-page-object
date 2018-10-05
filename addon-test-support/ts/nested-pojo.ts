@@ -20,26 +20,45 @@ namespace GenericPojo {
   }
 
   type iPO<T> = KnownProps & {
-    [k in keyof T]: iPO<T[k]>
+    [k in keyof T]:
+      T[k] extends Function ? T[k] :
+      iPO<T[k]>;
   };
 
-  declare function create<T, S extends keyof T>(def: T): iPO<T>
+  type Definition = {
+    scope: string
+  }
+
+  declare function create<T extends Partial<Definition>, S extends keyof T>(def: T): iPO<T>
 
   const c = {};
   const b = { c }
   const C = d => d;
 
-  const a = create(C({ c, b }));
+  const a = create(C({
+    scope: 'asdasd',
+    c,
+    b,
+    fly() {
+      return "a";
+    }
+  }));
 
   // should PASS
   a.isVisible;
   a.click().focus();
   a.b.click()
   a.b.c.click();
+  a.fly();
+  a.click().b
 
   // should FAIL
-  a.click().b
   a.click().isVisible
   a.isVisible.b
   a.isVisible.click();
+  a.fly.isVisible
 }
+
+  create({
+    scope: 13
+  })
