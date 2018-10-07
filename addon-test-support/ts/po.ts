@@ -1,27 +1,33 @@
-namespace PO {
-  type ActionResult<T> = KnownActions<any> & {
-    'then': PromiseLike<T>
-  };
+declare module 'po' {
+  export type AsyncPO<T> = KnownActions<T> & UnpackedDefinition<T>
+  export type Component<T> = KnownProps<T> & UnpackedDefinition<T>
 
-  interface KnownActions<T> {
-    click(): ActionResult<T>
-    focus(): ActionResult<T>
-  }
+  export type ActionResult<T> = AsyncPO<T>
 
-  interface KnownProps<T> extends KnownActions<T> {
+  export interface KnownProps<T> extends KnownActions<T> {
     contains(textToSearch: string): boolean
     isVisible: boolean
   }
 
-  type iPO<T> = KnownProps<T> & MyLol<T> & {
+  interface KnownActions<T> {
+    click(this: T): ActionResult<T>
+    focus(this: T): ActionResult<T>
+  }
+
+  type UnpackedDefinition<T> = {
     [k in keyof T]:
-      T[k] extends Definition ? iPO<T[k]> : T[k]
+      T[k] extends Definition ?
+        T[k] extends Function ? T[k] : Component<T[k]>
+      : T[k]
   }
 
   type Definition = {
-    scope: string
+    scope?: string
+    resetScope?: boolean
   }
 
-  export declare function create<T extends Partial<Definition>>(def: T): iPO<T>
+  function create<T extends Partial<Definition>>(def: T): Component<T>
+
+  export { create };
 }
 // type ReturnType<T> = T extends (...args: any[]) => infer R ? R : any;
