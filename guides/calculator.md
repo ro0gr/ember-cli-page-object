@@ -13,14 +13,6 @@ Let's say we have a simple calculator component with the following markup:
 <form class="QuickstartCalculator">
   <input name="screen">
 
-  <fieldset>
-    <legend>Numpad
-
-    {{#each (array 0 1 2 3 4 5 6 7 8 9) |num|}}
-      <button value="{{num}}">{{num}}</button>
-    {{/each}}
-  </fieldset>
-
   <button class="Plus">+</button>
   <button class="Minus">-</button>
   <button class="Equals">=</button>
@@ -36,7 +28,10 @@ installing
   create tests/pages/components/quickstart-calculator.js
 ```
 
-Let's specify a component `scope` and define operations on it:
+In the markup we have a few operation buttons and an input field called `screen` where user can type input numbers
+and see a calculation result after the `equals` button is pressed.
+
+Let's describe it with a page object component definition:
 
 ```js
 // your-app/tests/pages/components/quickstart-calculator.js
@@ -66,7 +61,7 @@ Here we have a simple component definition for the calculator component. Definit
 import { create } from 'ember-cli-page-object';
 import QuickstartCalculator from 'my-app/tests/pages/components/quickstart-calculator';
 
-const calc = create(QuickstartCalculator);
+const calculator = create(QuickstartCalculator);
 ```
 
 Let's write our first test now:
@@ -75,12 +70,12 @@ Let's write our first test now:
 test('it works', async function(assert) {
   await render(hbs`{{quickstart-calculator}}`);
 
-  await calc.fillIn(2)
+  await calculator.fillIn(2)
     .plus()
     .fillIn(2)
     .equals();
 
-  assert.equal(calc.value, 4);
+  assert.equal(calculator.value, 4);
 });
 ```
 
@@ -126,9 +121,9 @@ With a collection we can access a component by its index
 
 ```js
   // click "1"
-  await calc.nums[0].click();
+  await calculator.nums[0].click();
   // click "0"
-  await calc.nums[9].click();
+  await calculator.nums[9].click();
 });
 ```
 
@@ -160,13 +155,13 @@ export default {
 test('numpad works', async function(assert) {
   await render(hbs`{{quickstart-calculator}}`);
 
-  await calc.clickNumber(2)
+  await calculator.clickNumber(2)
     .clickNumber(2)
     .plus()
     .clickNumber(2)
     .equals();
 
-  assert.equal(calc.value, 24);
+  assert.equal(calculator.value, 24);
 });
 ```
 
