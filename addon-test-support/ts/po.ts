@@ -1,4 +1,4 @@
-declare module 'po' {
+declare module 'ember-cli-page-object' {
   export type AsyncPO<T> = KnownActions<T> & UnpackedDefinition<T>
   export type Component<T> = KnownProps<T> & UnpackedDefinition<T>
 
@@ -9,6 +9,8 @@ declare module 'po' {
     isVisible: boolean
   }
 
+  type BoundFunction<T, K extends Function> = (this: T, ...args: any[]) => K
+
   interface KnownActions<T> {
     click(this: T): ActionResult<T>
     focus(this: T): ActionResult<T>
@@ -16,8 +18,8 @@ declare module 'po' {
 
   type UnpackedDefinition<T> = {
     [k in keyof T]:
-      T[k] extends Definition ?
-        T[k] extends Function ? T[k] : Component<T[k]>
+      T[k] extends Function ? T[k]
+      : T[k] extends Definition ? Component<T[k]>
       : T[k]
   }
 
@@ -30,4 +32,3 @@ declare module 'po' {
 
   export { create };
 }
-// type ReturnType<T> = T extends (...args: any[]) => infer R ? R : any;

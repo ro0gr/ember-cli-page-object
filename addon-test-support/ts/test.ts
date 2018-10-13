@@ -1,4 +1,4 @@
-import { create, Component } from "po";
+import { create, Component } from "ember-cli-page-object";
 
 const c = {};
 
