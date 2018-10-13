@@ -1,6 +1,13 @@
-import { create, Component } from "ember-cli-page-object";
+import {
+  create,
+  Component,
+  ActionResult,
+  clickable
+} from "ember-cli-page-object";
 
-const c = {};
+const c = {
+  do: clickable()
+};
 
 const Def = {
   scope: '.AComponent',
@@ -15,18 +22,14 @@ const Def = {
     return "a";
   },
 
-  async do() {
-    await this.click();
+  do() {
+    return <ActionResult<typeof Def>>this.click();
   }
 }
 
 const a = create(Def);
 
-const done = a.do();
-done.then(async function(this: Component<typeof Def>) {
-  await this.do();
-});
-
+a.do().c;
 a.isVisible;
 a.click().focus();
 a.b.click()
