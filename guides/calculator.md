@@ -37,20 +37,20 @@ Let's describe it with a page object component definition:
 // your-app/tests/pages/components/quickstart-calculator.js
 import {
   clickable,
-  fillable,
-  value
 } from 'ember-cli-page-object';
 
 export default {
   scope: '.QuickstartCalculator',
 
-  plus: clickable('.Plus')
+  plus: clickable('.Plus'),
   minus: clickable('.Minus'),
   equals: clickable('.Equals'),
 
-  value: value('input[name="screen"]'),
-  fillIn: fillable('input[name="screen"]'),
-}
+  screen: {
+    scope: 'input[name="screen"]',
+  }
+};
+
 ```
 
 Here we have a simple component definition for the calculator component. Definitions are used to [`create`](./api/create) a page object instances:
@@ -61,28 +61,25 @@ Here we have a simple component definition for the calculator component. Definit
 import { create } from 'ember-cli-page-object';
 import QuickstartCalculator from 'my-app/tests/pages/components/quickstart-calculator';
 
-const calculator = create(QuickstartCalculator);
+const calc = create(QuickstartCalculator);
 ```
 
 Let's write our first test now:
 
 ```js
-test('it works', async function(assert) {
-  await render(hbs`{{quickstart-calculator}}`);
+  const { screen } = calc;
 
-  await calculator.fillIn(2)
-    .plus()
-    .fillIn(2)
-    .equals();
+  test('it works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
 
-  assert.equal(calculator.value, 4);
-});
+    await screen.fillIn('3')
+    await calc.plus();
+    await screen.fillIn('2');
+    await calc.equals();
+
+    assert.equal(screen.value, 5);
+  });
 ```
-
-tbd
-  - default attrs: where the actions and props appeared from
-  - Custom attr
-  - adding a numpad
 
 ```html
 <form class="QuickstartCalculator">
@@ -91,8 +88,8 @@ tbd
   <fieldset>
     <legend>Numpad
 
-    {{#each (array 1 2 3 4 5 6 7 8 9 0) |num|}}
-      <button value="{{num}}">{{num}}</button>
+    {{#each (array 0 1 2 3 4 5 6 7 8 9) |num|}}
+      <button value={{num}}>{{num}}</button>
     {{/each}}
   </fieldset>
 
@@ -102,6 +99,7 @@ tbd
 </form>
 ```
 
+We could add 10 new components to the definition definition for each number button by using a `:nth-of-type` pseudo-selector, but there is a better way to do it using page object collections: 
 
 ```js
 // your-app/tests/pages/components/calculator.js
@@ -111,59 +109,77 @@ import { collection } from 'ember-cli-page-object';
 export default {
   scope: '.QuickstartCalculator',
 
-  nums: collection('.Numpad > button'),
-
   // ...
+
+  nums: collection('.Numpad > button'),
 }
 ```
 
-With a collection we can access a component by its index 
+Now we can access numpad buttons by their position in the markup:
 
 ```js
-  // click "1"
-  await calculator.nums[0].click();
-  // click "0"
-  await calculator.nums[9].click();
-});
+  const { screen, numpad } = calc;
+
+  test('numpad also works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
+
+    await numpad[3].click();
+    await calc.plus();
+    await numpad[2].click();
+    await calc.equals();
+
+    assert.equal(screen.value, 5);
+  });
 ```
 
 ```js
 // your-app/tests/pages/components/calculator.js
 
-import { collection } from 'ember-cli-page-object';
+import {
+  collection,
+  clickable,
+} from 'ember-cli-page-object';
 
 export default {
   scope: '.QuickstartCalculator',
 
-  nums: collection('.Numpad > button'),
+  plus: clickable('.Plus'),
+  minus: clickable('.Minus'),
+  equals: clickable('.Equals'),
 
-  num(number) {
-    return this.nums.toArray().find(n => n.value === number);
+  screen: {
+    scope: 'input[name="screen"]'
   },
 
-  async clickNum(number) {
-    await this.num(number).click();
+  nums: collection('.Numpad > button'),
+
+  async fillIn() {
+    await this.screen.fillIn(...arguments);
 
     return this;
   },
 
-  // ...
+  async num(number) {
+    const num = this.nums.toArray().find(n => n.value === number);
+
+    await num.click();
+
+    return this;
+  }
 }
 ```
 
 ```js
-test('numpad works', async function(assert) {
-  await render(hbs`{{quickstart-calculator}}`);
+  test('numpad works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
 
-  await calculator.clickNumber(2)
-    .clickNumber(2)
-    .plus()
-    .clickNumber(2)
-    .equals();
+    await cals.num(2)
+      .plus()
+      .num(2)
+      .equals();
 
-  assert.equal(calculator.value, 24);
-});
+    assert.equal(calc.value, 24);
+  });
 ```
-
 
 {% endraw %}
