@@ -67,19 +67,21 @@ const calc = create(QuickstartCalculator);
 Let's write our first test now:
 
 ```js
-  const { screen } = calc;
+  const { screen } = calc; // we can use a shorthand for nested components
 
   test('it works', async function(assert) {
     await render(hbs`{{quickstart-calculator}}`);
 
-    await screen.fillIn('3')
+    await screen.fillIn('3'); // `fillIn` is a default component action
     await calc.plus();
     await screen.fillIn('2');
     await calc.equals();
 
-    assert.equal(screen.value, 5);
+    assert.equal(screen.value, 5); // `value` is a default component property
   });
 ```
+
+
 
 ```html
 <form class="QuickstartCalculator">
@@ -99,7 +101,7 @@ Let's write our first test now:
 </form>
 ```
 
-We could add 10 new components to the definition definition for each number button by using a `:nth-of-type` pseudo-selector, but there is a better way to do it using page object collections: 
+We could add 10 new components to the definition for each number button by using `:nth-of-type` pseudo-selector, but there is a better way to do it by using page object collections: 
 
 ```js
 // your-app/tests/pages/components/calculator.js
