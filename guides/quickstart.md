@@ -5,301 +5,183 @@ title: Quickstart
 
 {% raw %}
 
-This is a short guide to get you started testing your applications with EmberCLI Page Object. 
+In EmberCLI Page Object components and collections are the primary building blocks to describe UI of your app. 
 
- - [Prelude](#prelude)
- - [Component](#component)
- - [Collection](#collection)
- - [Page Object](#page-object)
-
-## Prelude
-
-First let's consider a search page with the following markup:
+Let's say we have a simple calculator component with the following markup:
 
 ```html
-<section class="SearchPage">
+<form class="QuickstartCalculator">
+  <input name="screen">
 
-  <!-- {{search-form text=this.text}} -->
-  <form>
-    <input type="search">
-
-    <button>Search</button>
-  </form>
-
-  <!-- {{search-results items=this.items}} -->
-  <ul>
-    <li>
-      <h5>Title #1</h5>
-      <p>Description here...</p>
-    </li>
-    <li>
-      <h5>Title #2</h5>
-      <p>Description here...</p>
-    </li>
-  </ul>
-
-</section>
-```
-
-Here is how standard Ember Application Test for this page might look:
-
-```js
-test('it searches', async function(assert) {
-  this.server.createList('my-model', [
-    { title: 'Awesome Title' },
-    { title: 'Other Title' }
-  ]);
-  const searchText = 'some';
-
-  await visit('/search');
-  await fillIn('.SearchPage form [type=search]', searchText);
-  await click('.SearchPage form button');
-
-  assert.dom('.SearchPage ul li').exists({ count: 1 });
-  assert.dom('.SearchPage ul li h5').hasText('Awesome Title');
-});
-```
-
-Whilst the markup is pretty simple we can see a mix of `search-form` and `search-results` components with their own DOM structures and interaction specifics which may make maintainability of your tests a challenge when it comes to a more complex pages or large test suites. 
-
-With page objects you can break a complex UI into a smaller manageable components with nice APIs and composability capabilities.
-
-## Component
-
-First let's see how to define a `search-form` with a page object component.
-
-```html
-<!-- search-form -->
-
-<form>
-  <input type="search">
-
-  <button>Search</button>
+  <button class="Plus">+</button>
+  <button class="Minus">-</button>
+  <button class="Equals">=</button>
 </form>
 ```
 
-To generate component definitions you can use a corresponding component generator:
+In order to generate a component definition you can use a corresponding component generator:
 
 ```bash
-$ ember generate page-object-component search-form
+$ ember generate page-object-component quickstart-calculator
 
 installing
-  create tests/pages/components/search-form.js
+  create tests/pages/components/quickstart-calculator.js
 ```
 
-With page objects, `search-form` component can be described as follows:
+In the markup we have a few operation buttons and an input field called `screen` where user can type input numbers
+and see a calculation result after the `equals` button is pressed.
+
+Let's describe it with a page object component definition:
 
 ```js
-// project-name/tests/pages/components/search-form.js
-
-import { clickable } from 'ember-cli-page-object';
+// your-app/tests/pages/components/quickstart-calculator.js
+import {
+  clickable,
+} from 'ember-cli-page-object';
 
 export default {
-  scope: 'form',
+  scope: '.QuickstartCalculator',
 
-  text: {
-    scope: 'input[type="search"]',
-  },
+  plus: clickable('.Plus'),
+  minus: clickable('.Minus'),
+  equals: clickable('.Equals'),
 
-  submit: clickable('button')
+  screen: {
+    scope: 'input[name="screen"]',
+  }
 };
+
 ```
 
-A plain object with a `scope` attribute provided is a component definition. It means the `text` attribute does also contain a component definition.
-
-Let's see how to use our fresh definition in component tests:
+Here we have a simple component definition for the calculator component. Definitions are used to [`create`](./api/create) a page object instances:
 
 ```js
-// tests/integration/search-form-test.js
+// my-app/tests/components/quickstart-calculator-test.js
 
 import { create } from 'ember-cli-page-object';
-import SearchForm from 'project-name/tests/pages/components/search-form';
+import QuickstartCalculator from 'my-app/tests/pages/components/quickstart-calculator';
 
-// Create a component from the definition
-const search = create(SearchForm);
-
-test('it renders', async function(assert) {
-  await render(`{{search-form}}`);
-
-  // "isVisible" is a default component attribute
-  assert.ok(search.isVisible);
-});
-
-test('it renders with a search text', async function(assert) {
-  await render(`{{search-form text="some"}}`);
-
-  // "value" is a default component attribute
-  assert.equal(search.text.value, 'some');
-});
-
-test('it submits search text', async function(assert) {
-  this.onSubmit = (text) => {
-    assert.equal(text, 'Search Text');
-  }
-
-  await render(hbs`{{search-form onSubmit=(action onSubmit)}}`);
-
-  // "fillIn" is a default component action
-  await search.text.fillIn('Search Text');
-
-  await search.submit();
-});
+const calc = create(QuickstartCalculator);
 ```
 
-## Collection
+Let's write our first test now:
 
-Sometimes we have a component rendered multiple times on the page. For example, let's take a look at the search results block: 
+```js
+  const { screen } = calc; // we can use a shorthand for nested components
+
+  test('it works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
+
+    await screen.fillIn('3'); // `fillIn` is a default component action
+    await calc.plus();
+    await screen.fillIn('2');
+    await calc.equals();
+
+    assert.equal(screen.value, 5); // `value` is a default component property
+  });
+```
+
+
 
 ```html
-<!-- search-results -->
+<form class="QuickstartCalculator">
+  <input name="screen">
 
-<ul>
-  <li>
-    <h5>Title #1</h5>
-    <p>Description here...</p>
-  </li>
-  <li>
-    <h5>Title #2</h5>
-    <p>Description here...</p>
-  </li>
-</ul>
+  <fieldset>
+    <legend>Numpad
+
+    {{#each (array 0 1 2 3 4 5 6 7 8 9) |num|}}
+      <button value={{num}}>{{num}}</button>
+    {{/each}}
+  </fieldset>
+
+  <button class="Plus">+</button>
+  <button class="Minus">-</button>
+  <button class="Equals">=</button>
+</form>
 ```
 
-The `li` is a component which is rendered iteratively.
+We could add 10 new components to the definition for each number button by using `:nth-of-type` pseudo-selector, but there is a better way to do it by using page object collections: 
 
-For such cases EmberCLI Page Object provides us with a `collection` helper to describe component collections in the DOM.
+```js
+// your-app/tests/pages/components/calculator.js
 
-Let's create a `search-item` component definition in order to use it with a search results collection in the final application test.
+import { collection } from 'ember-cli-page-object';
 
-```bash
-$ ember generate page-object-component search-item
+export default {
+  scope: '.QuickstartCalculator',
+
+  // ...
+
+  nums: collection('.Numpad > button'),
+}
+```
+
+Now we can access numpad buttons by their position in the markup:
+
+```js
+  const { screen, numpad } = calc;
+
+  test('numpad also works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
+
+    await numpad[3].click();
+    await calc.plus();
+    await numpad[2].click();
+    await calc.equals();
+
+    assert.equal(screen.value, 5);
+  });
 ```
 
 ```js
-// project-name/tests/pages/components/search-item.js
-export default {
-  scope: 'li',
+// your-app/tests/pages/components/calculator.js
 
-  title: {
-    scope: 'h5'
+import {
+  collection,
+  clickable,
+} from 'ember-cli-page-object';
+
+export default {
+  scope: '.QuickstartCalculator',
+
+  plus: clickable('.Plus'),
+  minus: clickable('.Minus'),
+  equals: clickable('.Equals'),
+
+  screen: {
+    scope: 'input[name="screen"]'
   },
 
-  description: {
-    scope: 'p'
+  nums: collection('.Numpad > button'),
+
+  async fillIn() {
+    await this.screen.fillIn(...arguments);
+
+    return this;
+  },
+
+  async num(number) {
+    const num = this.nums.toArray().find(n => n.value === number);
+
+    await num.click();
+
+    return this;
   }
 }
 ```
 
-Here is an example how we can define a collection:
-
 ```js
-import { create, collection } from 'ember-cli-page-object';
-import SearchItem from 'project-name/tests/pages/components/search-item';
+  test('numpad works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
 
-const page = create({
-  // at the first argument we specify a path to collection item component
-  results: collection('ul>li', SearchItem)
-});
+    await cals.num(2)
+      .plus()
+      .num(2)
+      .equals();
+
+    assert.equal(calc.value, 24);
+  });
 ```
-
-And few collection instance usage examples:
-
-```js
-// ...
-assert.equals(page.results.length, 2);
-assert.equals(page.results[0].title.text, 'Title #1');
-assert.equals(page.results.filter(i => i.contains('Description here...')).length, 2);
-```
-
-## Page Object
-
-Page Object is a high level container for a smaller components, actions and attributes which is supposed to be a complete testing interface for a given page in your application tests.
-
-Let's generate a `search` page object:
-
-```bash
-$ ember generate page-object search
-
-installing
-  create tests/pages/search.js
-```
-
-It would produce something like the following:
-
-```js
-// project-name/tests/pages/search.js
-import {
-  create,
-  visitable
-} from 'ember-cli-page-object';
-
-export default create({
-  visit: visitable('/')
-});
-```
-
-You may have noticed few page object differences with a component:
-
- - It has a `visit` method.
- - It is exported as a ready to use instance, so we don't have to deal with `create` in our application tests.
-
-Now let's update it to include a `search-form` and search results collection with a `search-item` component we've implemented before. It should also refer to a valid `scope` and URL to `visit`:
-
-```js
-// project-name/tests/pages/search.js
-
-import {
-  create,
-  collection,
-  visitable
-} from 'ember-cli-page-object';
-
-import Form from './components/search-form';
-import SearchItem from './components/search-item';
-
-export default create({
-  scope: '.SearchPage',
-
-  visit: visitable('/search'),
-
-  form: Form,
-
-  results: collection('ul>li', SearchItem),
-
-  // Let's also provide a convenient shorhand for a search action
-  async search(text) {
-    await this.form.text.fillIn(text);
-
-    await this.form.submit();
-  }
-})
-```
-
-And we are ready to re-write initial application test with a page object:
-
-```js
-import searchPage from 'project-name/tests/pages/search';
-// ...
-
-test('it searches', async function(assert) {
-  this.server.createList('my-model', [
-    { title: 'Awesome Title' },
-    { title: 'Other Title' }
-  ]);
-
-  await searchPage
-    .visit()
-    .search('some');
-
-  const { results } = searchPage;
-
-  assert.equal(results.length, 1);
-  assert.equal(results[0].title, 'Awesome Title');
-});
-```
-
-As you can see we don't deal with any CSS selectors in the tests anymore. This means if the markup is changed eventually we just need to update an appropriate page object declaration in a single place.
-
-Also we have encapsulated complex actions like `search()` inside the page object definition. So we have a convenient and easy to remember API to test application.
 
 {% endraw %}
