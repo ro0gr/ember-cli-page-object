@@ -5,7 +5,7 @@ title: Quickstart
 
 {% raw %}
 
-In EmberCLI Page Object [`components`](./components) and [`collections`](./api/collection) are the primary building blocks to describe UI of your app. 
+In EmberCLI Page Object [`components`](./components) and [`collections`](./api/collection) are the primary building blocks used to describe UI of your app. 
 
 Let's say we have a simple calculator component with the following markup:
 
@@ -20,7 +20,7 @@ Let's say we have a simple calculator component with the following markup:
 </form>
 ```
 
-Here we have an input called `screen` which is responsible for reading numbers entered by user and displaying a calculation result when the `equals` button is pressed. There are also `plus` and `minus` operator buttons defined.
+In this example `screen` input allows user to enter numbers to be calculated and to see a calculation result after the `equals` button is pressed.
 
 Let’s create a page object component definition for the `quickstart-calculator` component.
 
@@ -49,14 +49,16 @@ export default {
   equals: clickable('.equals'),
 
   plus: clickable('.plus'),
+
   minus: clickable('.minus'),
 };
 ```
 
-In EmberCLI Page Object any plain javascript object is treated as a component declaration.
-Each component can have its own CSS selector [`scope`](./query-options#scope), which allows to build a valid query selector while looking for the component in DOM. A parent `scope` is also taken into account when component selector is being built. 
+We expressed `screen` input as a nested component with only a [`scope`](./query-options#scope) attribute defined.
 
-We can customize a page object API with custom attributes. In our example we have extended a calculator API with `plus`, `minus` and `equal` [`clickable`](./api/clickable) actions.
+Out of the box each component is suplied with a set of [default attributes](./components#default-attributes). We will use [`fillIn`](./api/fillable) and [`value`](./api/value) default attributes of the `screen` in our tests.
+
+We also declared few explicit [`clickable`](./api/clickable) actions for operator buttons.
 
 In order to use definition as a page object we have to [`create`](./api/create) a page object instance:
 
@@ -73,28 +75,23 @@ Now we can write our first test:
 
 ```js
 // my-app/tests/components/quickstart-calculator-test.js
-
-// ...
-
-  const { screen } = calc; // we can use a shorthand for nested components
+  const { screen } = calc;
 
   test('it works', async function(assert) {
     await render(hbs`{{quickstart-calculator}}`);
 
-    await screen.fillIn('1'); // `fillIn` is a default component action
+    await screen.fillIn('1');
     await calc.plus();
     await screen.fillIn('2');
     await calc.equals();
 
-    assert.equal(screen.value, '3'); // `value` is a default component property
+    assert.equal(screen.value, '3');
   });
 ```
 
-Please note, in the test we've used `screen.fillIn()` action and `screen.value` property which are a part of [default attributes](./components#default-attributes) available for each component. 
+Now we have a nice testing API for a `quickstart-calculator` component which is re-usable across tests. With such API 
 
-Well, we have just handled a single component case, but sometimes we have to deal with components represented as a list on the page.
-
-Let's say we've just got a `numpad` for our calculator:
+Great! Now, let's say we've just got a `numpad` for our calculator:
 
 ```html
 <form class="quickstart-calculator">
@@ -151,56 +148,4 @@ Now we can access numpad buttons by their position in the markup:
     assert.equal(screen.value, 5);
   });
 ```
-
-```js
-// your-app/tests/pages/components/quickstart-calculator.js
-
-import {
-  collection,
-  clickable,
-} from 'ember-cli-page-object';
-
-export default {
-  scope: '.quickstart-calculator',
-
-  screen: {
-    scope: 'input[name="screen"]'
-  },
-
-  equals: clickable('.equals'),
-
-  plus: clickable('.plus'),
-  minus: clickable('.minus'),
-
-  nums: collection('.Numpad > button'),
-
-  async fillIn() {
-    await this.screen.fillIn(...arguments);
-
-    return this;
-  },
-
-  async num(number) {
-    const numBtn = this.nums.toArray().find(n => n.value === number);
-
-    await numBtn.click();
-
-    return this;
-  }
-}
-```
-
-```js
-  test('numpad works', async function(assert) {
-    await render(hbs`{{quickstart-calculator}}`);
-
-    await cals.num(2)
-      .plus()
-      .num(2)
-      .equals();
-
-    assert.equal(calc.value, 24);
-  });
-```
-
 {% endraw %}
