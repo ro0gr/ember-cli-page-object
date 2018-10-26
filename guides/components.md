@@ -88,3 +88,57 @@ Here is a list of all the component default attributes:
 * [select](./api/selectable)
 * [text](./api/text)
 * [value](./api/value)
+
+## Chaining
+
+```js
+// your-app/tests/pages/components/quickstart-calculator.js
+
+import {
+  collection,
+  clickable,
+} from 'ember-cli-page-object';
+
+export default {
+  scope: '.quickstart-calculator',
+
+  screen: {
+    scope: 'input[name="screen"]'
+  },
+
+  equals: clickable('.equals'),
+
+  plus: clickable('.plus'),
+  minus: clickable('.minus'),
+
+  nums: collection('.Numpad > button'),
+
+  async fillIn() {
+    await this.screen.fillIn(...arguments);
+
+    return this;
+  },
+
+  async num(number) {
+    const numBtn = this.nums.toArray().find(n => n.value === number);
+
+    await numBtn.click();
+
+    return this;
+  }
+}
+```
+
+```js
+  test('numpad works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
+
+    await cals.num(2)
+      .plus()
+      .num(2)
+      .equals();
+
+    assert.equal(calc.value, 24);
+  });
+```
+
