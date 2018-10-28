@@ -33,7 +33,7 @@ installing
   create tests/pages/components/quickstart-calculator.js
 ```
 
-Now we can update generated file with the following contents:
+Now let's update generated file with the following contents:
 
 ```js
 // your-app/tests/pages/components/quickstart-calculator.js
@@ -60,7 +60,7 @@ Out of the box each component is suplied with a set of [default attributes](./co
 
 We also declared few explicit [`clickable`](./api/clickable) actions for operator buttons.
 
-In order to use definition as a page object we have to [`create`](./api/create) a page object instance:
+Now we can [`create`](./api/create) a page object instance from the definition to use it in tests:
 
 ```js
 // my-app/tests/components/quickstart-calculator-test.js
@@ -71,7 +71,7 @@ import QuickstartCalculator from 'my-app/tests/pages/components/quickstart-calcu
 const calc = create(QuickstartCalculator);
 ```
 
-Now we can write our first test:
+Let's write a test now!
 
 ```js
 // my-app/tests/components/quickstart-calculator-test.js
@@ -89,9 +89,11 @@ Now we can write our first test:
   });
 ```
 
-Now we have a nice testing API for a `quickstart-calculator` component which is re-usable across tests. With such API 
+As you can see we don't rely on any CSS selectors directly in our tests. It makes testsuites more maintainable because there is a single source of truth for application test selectors and DOM interactions complexity.
 
-Great! Now, let's say we've just got a `numpad` for our calculator:
+While component definition is supposed to be used for a single component on a page, it's typical to have a series of components rendered in a loop.
+
+Let's say we've implemented a `numpad` block for our calculator:
 
 ```html
 <form class="quickstart-calculator">
@@ -112,7 +114,7 @@ Great! Now, let's say we've just got a `numpad` for our calculator:
 </form>
 ```
 
-There are page object collections to deal with lists of components:
+Now we have the same `button` component on the page repeated 10 times. We could declare 10 new components for each digit `button` in our `quickstart-caclulator` definition, but there is a more efficient way to do it called [`collection`](./api/collection).
 
 ```js
 // your-app/tests/pages/components/calculator.js
@@ -132,9 +134,6 @@ Now we can access numpad buttons by their position in the markup:
 
 ```js
 // my-app/tests/components/quickstart-calculator-test.js
-
-// ...
-
   const { screen, numpad } = calc;
 
   test('numpad also works', async function(assert) {
