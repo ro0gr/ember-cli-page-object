@@ -241,6 +241,8 @@ export default create({
 })
 ```
 
+TBD
+
 ```js
 import searchPage from 'project-name/tests/pages/search';
 // ...
@@ -250,8 +252,9 @@ import searchPage from 'project-name/tests/pages/search';
     await searchPage.form.text.fillIn('some');
     await searchPage.form.submit();
 
-    assert.equal(searchPage.results.length, 1);
-    assert.equal(searchPage.results[0].title, 'Awesome Title');
+    const actualTitles = searchPage.results.map(i => i.title);
+
+    assert.deepEqual(actualTitles, ['Some Title', 'Awesome Title']);
   });
 ```
 
