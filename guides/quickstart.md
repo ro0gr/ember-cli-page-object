@@ -7,6 +7,13 @@ title: Quickstart
 
 In EmberCLI Page Object [`components`](./components) and [`collections`](./api/collection) are the primary building blocks used to describe UI of your app. 
 
+
+ - [Component Definition](#component-definition)
+ - [Collections](#collections)
+ - [Page Objects](#page-objects)
+
+## Component Definition
+
 Let's say we have a simple calculator component with the following markup:
 
 ```html
@@ -91,6 +98,8 @@ Let's write a test now!
 
 As you can see we don't rely on any CSS selectors directly in our tests. It makes testsuites more maintainable because there is a single source of truth for application test selectors and DOM interactions complexity.
 
+## Collections
+
 While component definition is supposed to be used for a single component on a page, it's typical to have a series of components rendered in a loop.
 
 Let's say we've implemented a `numpad` block for our calculator:
@@ -147,4 +156,103 @@ Now we can access numpad buttons by their position in the markup:
     assert.equal(screen.value, 5);
   });
 ```
+
+## Page Objects
+
+Page object is a top-level component instance which allows to describe the whole page for your tests.
+
+Let's say we have object component definitions for the search form:
+
+```js
+// your-app/tests/pages/components/search-form.js
+
+import { triggerable } from 'ember-cli-page-object';
+
+export default {
+  scope: 'form',
+
+  text: { scope: 'input[type="search"]' },
+
+  submit: triggerable('submit')
+};
+```
+
+and for the search results list item:
+
+```js
+// your-app/tests/pages/components/search-item.js
+export default {
+  scope: 'li',
+
+  title: { scope: 'h5' },
+
+  description: { scope: 'p' }
+}
+```
+
+In order to test search page we can create a `search` page object. Let's do it by using `page-object` generator:
+
+```
+$ ember generate page-object search
+
+installing
+  create tests/pages/search.js
+```
+
+it would produce the following output: 
+
+```js
+// project-name/tests/pages/search.js
+import {
+  create,
+  visitable
+} from 'ember-cli-page-object';
+
+export default create({
+  visit: visitable('/')
+});
+```
+
+As you can see there are few noticable differences with component definitions:
+ 
+  - Page object is [visitable](./api/visitable).
+  - It's a ready to use instance, so we don't need to additionally `create` an instance in tests
+
+Now, let's update page object with a proper route to visit and nested components for the form and results collection:
+
+```js
+import {
+  create,
+  collection,
+  visitable
+} from 'ember-cli-page-object';
+
+import Form from './components/search-form';
+import SearchItem from './components/search-item';
+
+export default create({
+  scope: '.SearchPage',
+
+  visit: visitable('/search'),
+
+  form: Form,
+
+  results: collection('ul>li', SearchItem)
+})
+```
+
+```js
+import searchPage from 'project-name/tests/pages/search';
+// ...
+
+  test('it searches', async function(assert) {
+    await searchPage.visit()
+    await searchPage.form.text.fillIn('some');
+    await searchPage.form.submit();
+
+    assert.equal(searchPage.results.length, 1);
+    assert.equal(searchPage.results[0].title, 'Awesome Title');
+  });
+```
+
 {% endraw %}
