@@ -4,426 +4,278 @@ title: Quickstart
 ---
 
 {% raw %}
-This is a short guide to get you started writing page objects and using them in your acceptance and integration tests.
 
-- [Acceptance tests](#acceptance-tests)
-- [Integration tests](#integration-tests)
+EmberCLI Page Object allows you to build powerful testing APIs for your UIs.
 
-## Acceptance Tests
+- [Basics](#basics)
+- [Calculator](#calculator)
+- [Application Pages](#application-pages)
 
-Suppose we have a couple of acceptance tests to test the login page of our site.
+## Basics
+
+Page objects are being instantiated from definitions, which are plain javascript objects,
+with a help of [`create`](./api/create) function.
+
+The simplest possible definition has a CSS [`scope`](./query-options#scope) defined
+to enclose page object to some DOM element.
+
+You can also have nested definitions which would encounter parent scope [`by default`](./query-options#resetScope):
 
 ```js
-test('logs in sucessfully', function(assert) {
-  visit('/login');
-  fillIn('#username', 'admin');
-  fillIn('#password', 'secret');
-  click('button');
+import { create } from 'ember-cli-page-object';
 
-  andThen(function() {
-    assert.equal(currentURL(), '/private-page');
-  });
-});
+const myForm = create({
+  scope: 'form.my-form',
 
-test('shows an error when password is wrong', function(assert) {
-  visit('/login');
-  fillIn('#username', 'admin');
-  fillIn('#password', 'invalid');
-  click('button');
-
-  andThen(function() {
-    assert.equal(currentURL(), '/login');
-    assert.equal($.trim(find('.errors').text()), 'Invalid credentials');
-  });
-});
+  datum: {
+    scope: 'input[name="datum"]'
+  }
+})
 ```
 
-We want to convert these tests to use a page object.
+Out of the box each component is supplied with a set of [default attributes](./components#default-attributes),
+so we already can use our minimal page object as follows: 
 
-First, we need to create a new page object. For this we'll use one of the generators that comes with the addon.
+```js
+  test('dummy form', async function(assert) {
+    await render(hbs`{{my-form}}`);
+
+    assert.ok(myForm.isVisible);
+
+    await myForm.datum.fillIn('text');
+
+    assert.equal(myForm.datum.value, 'text');
+  });
+```
+
+## Calculator
+
+Let's say we have a simple calculator component.
+
+In order to describe page object components you can use corresponding generator:
 
 ```bash
-$ ember generate page-object login
+$ ember generate page-object-component quickstart-calculator
 
 installing
-  create tests/pages/login.js
+  create tests/pages/components/quickstart-calculator.js
 ```
 
-The generator created a file inside the directory `/tests/pages`. Let's describe the login page structure on our new page object.
+We should be able to click numpad buttons and `plus` button, submit the form to calculate a result.
+We also need to read a calculation result from the calculator screen.
+
+Let's update generated definition to satisfy these requirements:
 
 ```js
+// your-app/tests/pages/components/quickstart-calculator.js
 import {
-  create,
+  collection,
   clickable,
-  fillable,
-  text,
-  visitable
+  triggerable,
+  value
 } from 'ember-cli-page-object';
 
-export default create({
-  visit: visitable('/'),
+export default {
+  scope: 'form.quickstart-calculator',
 
-  username: fillable('#username'),
-  password: fillable('#password'),
-  submit: clickable('button'),
-  error: text('.errors')
-});
+  plus: clickable('button.plus'),
+
+  equals: triggerable('submit'),
+
+  value: value('input[name="screen"]'),
+
+  digits: collection('.numpad > button'),
+};
 ```
 
-Now we include the page object in the test and replace the existing test helpers with the page object's methods and properties.
+In addition to [`clickable`](./api/clickable), [`triggerable`](./api/triggerable) action attributes and [`value`](./api/value) getter attributes we've also used
+a special [`collection`](./api/collection) attribute to describe a list of numpad buttons.
+
+Now it's time to write first test with our page object:
 
 ```js
-import page from 'frontend/tests/pages/login';
+// my-app/tests/components/quickstart-calculator-test.js
+
+import { create } from 'ember-cli-page-object';
+import QuickstartCalculator from 'my-app/tests/pages/components/quickstart-calculator';
+
+const calculator = create(QuickstartCalculator);
 
 // ...
 
-test('logs in sucessfully', function(assert) {
-  page
-    .visit()
-    .username('admin')
-    .password('secret')
-    .submit();
+  test('it works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
 
-  andThen(function() {
-    assert.equal(currentURL(), '/private-page');
+    await calculator.digits[1].click();
+    await calculator.plus();
+    await calculator.digits[2].click();
+    await calculator.equals();
+
+    assert.equal(calculator.value, 5);
   });
-});
+```
 
-test('shows an error when password is wrong', function(assert) {
-  page
-    .visit()
-    .username('admin')
-    .password('invalid')
-    .submit();
+As you can see we don't rely on any CSS selectors directly in our tests. It makes test suite easy to maintain because there is only a single place where all the selectors are kept.
 
-  andThen(function() {
-    assert.equal(page.error, 'Invalid credentials');
+However there is still some complexity in the test which is not obvious on the first glance.
+
+A typical calculator numpad would look something like the following:
+
+  [1] [2] [3]
+  [4] [5] [6]
+  [7] [8] [9]
+      [0]
+
+That's why we press "2" with:
+
+```js
+  await calculator.digits[1].click();
+```
+
+in case we need to press "0" digit, an invocation would look like:
+
+```js
+  await calculator.digits[9].click();
+```
+
+It can be challenging to keep in mind rules like this across your tests.
+
+We can absorb such complexities by declaring custom methods:
+
+```js
+// your-app/tests/pages/components/quickstart-calculator.js
+
+export default {
+  // ...
+
+  digits: collection('.numpad > button'),
+
+  clickDigit(digit) {
+    // convert digit to a button index
+    const buttonIndex = (9 + digit) % 10;
+
+    await this.digits[buttonIndex].click();
+
+    return this;
+  }
+```
+
+Note: by returning a page object instance from the `clickDigit` method we allow
+chaining of page object actions, which also improves tests readability:
+
+```js
+// my-app/tests/components/quickstart-calculator-test.js
+  test('it works', async function(assert) {
+    await render(hbs`{{quickstart-calculator}}`);
+
+    await calculator
+      .clickDigit(2);
+      .plus()
+      .clickDigit(3)
+      .equals();
+
+    assert.equal(calculator.value, 5);
   });
-});
 ```
 
-We can go a step further and describe the steps of the test using a higher level of abstraction.
+Now we have a pretty solid and easy to use calculator testing API.
+
+We've effectivelly hidden selectors and DOM layout complexity in our page object definition
+which can be re-used across tests and other definitions.
+
+## Application Pages
+
+In application tests we usually deal with pages composed of several components connected to each other.
+
+In order to simplify testing of such pages EmberCLI Page Object provides you with page-object 
+
+Page object is a top-level component instance which allows to describe the whole page for your tests.
+
+Let's say we have a simple page object definition for the search form:
 
 ```js
-import {
-  create,
-  clickable,
-  fillable,
-  text,
-  visitable
-} from 'ember-cli-page-object';
+// your-app/tests/pages/components/search-form.js
 
-export default create({
-  visit: visitable('/'),
+import { triggerable } from 'ember-cli-page-object';
 
-  username: fillable('#username'),
-  password: fillable('#password'),
-  submit: clickable('button'),
-  error: text('.errors'),
+export default {
+  scope: 'form.SearchForm',
 
-  loginSuccessfully() {
-    return this.username('admin')
-      .password('secret')
-      .submit();
-  },
+  text: { scope: 'input[type="search"]' },
 
-  loginFailed() {
-    return this.username('admin')
-      .password('invalid')
-      .submit();
-  }
-});
-```
-
-Let's update the test accordingly.
-
-```js
-test('logs in sucessfully', function(assert) {
-  page.visit()
-    .loginSuccessfully();
-
-  andThen(function() {
-    assert.equal(currentURL(), '/private-page');
-  });
-});
-
-test('shows an error when password is wrong', function(assert) {
-  page.visit()
-    .loginFailed();
-
-  andThen(function() {
-    assert.equal(page.error, 'Invalid credentials');
-  });
-});
-```
-
-## Integration Tests
-
-We've made a page object for our login page. Now let's use the same page object to write integration tests for our login form component.
-
-Here are our integration tests before using a page object.
-
-```js
-import { moduleForComponent, test } from 'ember-qunit';
-import hbs from 'htmlbars-inline-precompile';
-
-moduleForComponent('login-form', 'Integration | login form', {
-  integration: true
-});
-
-test('calls submit action with correct username and password', function(assert) {
-  assert.expect(2);
-
-  function submit(username, password) {
-    assert.equal(username, 'admin');
-    assert.equal(password, 'secret');
-  }
-
-  this.set('submit', submit);
-
-  this.render(hbs`
-    {{login-form
-      submit=(action submit)
-    }}
-  `);
-
-  $username = this.$('#username');
-  $password = this.$('#password');
-
-  $username.val('admin');
-  $username.trigger('input');
-  $username.change();
-
-  $password.val('secret');
-  $password.trigger('input');
-  $password.change();
-
-  this.$('button').click();
-});
-
-test('shows errors', function(assert) {
-  assert.expect(2);
-
-  this.set('errors', []);
-
-  this.render(hbs`
-    {{login-form
-      errors=errors
-    }}
-  `);
-
-  assert.equal(this.$('.errors').trim().text()), '');
-
-  Ember.run(() => {
-    this.set('errors', ['Invalid credentials']);
-  });
-
-  assert.equal(this.$('.errors').trim().text()), 'Invalid credentials');
-});
-```
-
-Let's use our existing page object to refactor these integration tests. As a reminder, here is our page object. (We don't need to change anything to use it in our integration tests!)
-
-```js
-import {
-  create,
-  clickable,
-  fillable,
-  text,
-  visitable
-} from 'ember-cli-page-object';
-
-export default create({
-  visit: visitable('/'),
-
-  username: fillable('#username'),
-  password: fillable('#password'),
-  submit: clickable('button'),
-  error: text('.errors'),
-
-  loginSuccessfully() {
-    return this.username('admin')
-      .password('secret')
-      .submit();
-  },
-
-  loginFailed() {
-    return this.username('admin')
-      .password('invalid')
-      .submit();
-  }
-});
-```
-
-Let's set up our test to use the page object we created.
-
-```js
-import { moduleForComponent, test } from 'ember-qunit';
-import hbs from 'htmlbars-inline-precompile';
-
-import page from 'frontend/tests/pages/login';
-
-moduleForComponent('login-form', 'Integration | login form', {
-  integration: true,
-
-  beforeEach() {
-    page.setContext(this);
-  },
-
-  afterEach() {
-    page.removeContext();
-  }
-});
-
-test('calls submit action with correct username and password', function(assert) {
-  assert.expect(2);
-
-  function submit(username, password) {
-    assert.equal(username, 'admin');
-    assert.equal(password, 'secret');
-  }
-
-  this.set('submit', submit);
-
-  this.render(hbs`{{login-form
-    submit=(action submit)
-  }}`);
-
-  page
-    .username('admin')
-    .password('secret')
-    .submit();
-});
-
-test('shows errors', function(assert) {
-  assert.expect(2);
-
-  this.set('error', '');
-
-  this.render(hbs`
-    {{login-form
-      error=error
-    }}
-  `);
-
-  assert.equal(page.error, '');
-
-  Ember.run(() => {
-    this.set('error', 'Invalid credentials');
-  });
-
-  assert.equal(page.error, 'Invalid credentials');
-});
-```
-
-Let's take a look at the changes:
-
-- In the test's `beforeEach()` hook we set the page's test context with `page.setContext(this)`. That tells the page object to use the test's `this.$()` to find elements, instead of Ember's global acceptance test helpers.
-- In the `afterEach()` hook, we call `page.removeContext()` to clear the test context from the page object.
-- The rest of the changes are the same as in our acceptance tests: After you set the test's `this` context on the page object, you can use the page object as before. (The one exception is `page.visit()`, which doesn't work in component tests since we don't have access to a router.)
-
-As in our acceptance tests, we can DRY things up a bit more by grouping actions together into methods that describe specific user flows. For example, in the first test we can use our `page.loginSuccessfully()` method to eliminate a few lines of code:
-
-```js
-test('calls submit action with correct username and password', function(assert) {
-  assert.expect(2);
-
-  function submit(username, password) {
-    assert.equal(username, 'admin');
-    assert.equal(password, 'secret');
-  }
-
-  this.set('submit', submit);
-
-  this.render(hbs`{{login-form
-    submit=(action submit)
-  }}`);
-
-  page.loginSuccessfully();
-});
-```
-
-And that's it! Our integration and acceptance tests are cleaner, more maintainable and easier to read.
-
-## Appendix
-
-A helpful tip is to separate the exports in component page objects. This will allow you to compose larger page objects using the same definitions. For example say we have an integration test of a `my-fanfare` component:
-
-```js
-import {
-  create,
-  clickable,
-  isVisible
-} from 'ember-cli-page-object';
-
-export const MyFanfare = {
-  scope: '.ui-my-fanfare',
-  playFanfare: clickable('button'),
-  isCelebrating: isVisible('.fireworks')
+  submit: triggerable('submit')
 };
-
-export default create(MyFanfare);
 ```
 
-This separation gives us two `import`-able signatures. In the case of the component's integration test importing the `default` will work as expected:
+In order to test search page we can create a `search` page object. Let's do it by using `page-object` generator:
 
-```js
-import { moduleForComponent, test } from 'ember-qunit';
-import hbs from 'htmlbars-inline-precompile';
-import page from 'my-app/tests/pages/components/my-fanfare';
+```
+$ ember generate page-object search
 
-moduleForComponent('my-fanfare', 'Integration | Components | my fanfare', {
-  integration: true,
-  beforeEach() {
-    page.setContext(this);
-  },
-  afterEach() {
-    page.removeContext();
-  }
-});
-
-test('it show fireworks when user clicks fanfare button', function (assert) {
-  this.render(hbs`{{my-fanfaire}}`);
-  page.playFanfare();
-  assert.ok(page.isCelebrating, 'expected fireworks to have happened');
-});
+installing
+  create tests/pages/search.js
 ```
 
-Then in the case of an acceptance test where the page object happens to include a `my-fanfare` component we can add that definition to the page object we are using in the acceptance test(s):
+it would produce the following output: 
 
 ```js
-import { 
+// project-name/tests/pages/search.js
+import {
   create,
-  visitable,
-  fillable,
-  clickable
+  visitable
 } from 'ember-cli-page-object';
 
-import { MyFanfare } from 'frontend/tests/pages/components/my-fanfare';
-
 export default create({
-  visit: visitable('/'),
-  enterName: fillable('input.username'),
-  register: clickable('button.register'),
-  myFanfare: MyFanfare
+  visit: visitable('/')
 });
 ```
 
-Which will allow us to reference the `MyFanfare` component from the acceptance test.
+As you can see there are few noticable differences with component definitions:
+ 
+  - Page Object is a [visitable](./api/visitable).
+  - It's a ready to use instance, we don't need to use `create` an instance in tests.
+
+Now, let's update page object with a proper route to visit and nested components for the form and results collection:
 
 ```js
-assert.ok(page.myFanfare.isCelebrating, 'expected fireworks to have happened');
-```
+import {
+  create,
+  collection,
+  visitable
+} from 'ember-cli-page-object';
 
-Some manipulation could be added (for example picking the first instance only):
-
-```js
-import { assign } from '@ember/polyfills';
-import { create } from 'ember-cli-page-object';
-import { MyFanfare } from 'frontend/tests/pages/components/my-fanfare';
+import Form from './components/search-form';
 
 export default create({
-  myFanfare: assign({eq: 0}, MyFanfare)
-});
+  scope: '.SearchPage',
+
+  visit: visitable('/search'),
+
+  results: collection('ul>li'),
+
+  form: Form,
+
+  async search(text) {
+    await this.form.fillIn(text);
+
+    return await this.form.submit();
+  }
+})
 ```
+
+TBD
+
+```js
+import searchPage from 'project-name/tests/pages/search';
+// ...
+
+  test('it searches', async function(assert) {
+    await searchPage.visit()
+    await searchPage.search('some');
+
+    const results = searchPage.results.map(i => i.text);
+    assert.deepEqual(results, ['Some Text', 'Awesome Text']);
+  });
+```
+
 {% endraw %}
