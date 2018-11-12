@@ -140,7 +140,8 @@ in case we need to press "0" digit, an invocation would look like:
 
 It can be challenging to keep in mind rules like this across your tests.
 
-We can absorb such complexities by declaring custom methods:
+We can absorb such complexity by declaring a custom method for clicking
+a desirable digit button:
 
 ```js
 // your-app/tests/pages/components/quickstart-calculator.js
@@ -151,7 +152,7 @@ export default {
   digits: collection('.numpad > button'),
 
   clickDigit(digit) {
-    // convert digit to a button index
+    // convert digit to a button index in the collection
     const buttonIndex = (9 + digit) % 10;
 
     await this.digits[buttonIndex].click();
@@ -185,41 +186,33 @@ which can be re-used across tests and other definitions.
 
 ## Application Pages
 
-In application tests we usually deal with pages composed of several components connected to each other.
+Testing of application pages is a bit different from testing components.
 
-In order to simplify testing of such pages EmberCLI Page Object provides you with page-object 
+A typical page is composed of several components with their own interaction specifics.
 
-Page object is a top-level component instance which allows to describe the whole page for your tests.
+Each page is also associated with some application route. It means, in order
+to test a page we have to visit it by a certain URL.
 
-Let's say we have a simple page object definition for the search form:
+The addon provides you with page objects optimized specifically for testing application pages.
 
-```js
-// your-app/tests/pages/components/search-form.js
-
-import { triggerable } from 'ember-cli-page-object';
-
-export default {
-  scope: 'form.SearchForm',
-
-  text: { scope: 'input[type="search"]' },
-
-  submit: triggerable('submit')
-};
-```
-
-In order to test search page we can create a `search` page object. Let's do it by using `page-object` generator:
+In order to create a page object you can use corresponding generator:
 
 ```
-$ ember generate page-object search
+$ ember generate page-object my-page
 
 installing
-  create tests/pages/search.js
+  create tests/pages/my-page.js
 ```
 
-it would produce the following output: 
+As you can see page objects are generated under another location. 
+This is done such way to easier distinguish component definitions, which are
+located under `/tests/pages/components/`, between pages, which are located under
+`/tests/pages/`.
+
+A generated page object would look like the following:
 
 ```js
-// project-name/tests/pages/search.js
+// my-app/tests/pages/my-page.js
 import {
   create,
   visitable
@@ -230,52 +223,8 @@ export default create({
 });
 ```
 
-As you can see there are few noticable differences with component definitions:
- 
-  - Page Object is a [visitable](./api/visitable).
-  - It's a ready to use instance, we don't need to use `create` an instance in tests.
-
-Now, let's update page object with a proper route to visit and nested components for the form and results collection:
-
-```js
-import {
-  create,
-  collection,
-  visitable
-} from 'ember-cli-page-object';
-
-import Form from './components/search-form';
-
-export default create({
-  scope: '.SearchPage',
-
-  visit: visitable('/search'),
-
-  results: collection('ul>li'),
-
-  form: Form,
-
-  async search(text) {
-    await this.form.fillIn(text);
-
-    return await this.form.submit();
-  }
-})
-```
-
 TBD
-
-```js
-import searchPage from 'project-name/tests/pages/search';
-// ...
-
-  test('it searches', async function(assert) {
-    await searchPage.visit()
-    await searchPage.search('some');
-
-    const results = searchPage.results.map(i => i.text);
-    assert.deepEqual(results, ['Some Text', 'Awesome Text']);
-  });
-```
+- create vs definition
+- visitable
 
 {% endraw %}
