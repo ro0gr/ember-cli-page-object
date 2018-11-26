@@ -3,21 +3,21 @@ layout: page
 title: Components
 ---
 
-Group attributes and create new ones
+Describe functional fragments of the DOM
 
-* [Components](#components)
-* [Default attributes](#default-attributes)
-* [Custom helper](#custom-helper)
+* [Definitions](#definitions)
 * [Scopes](#scopes)
+* [Attributes](#attributes)
+  * [Actions](#default-attributes)
+  * [Default attributes](#default-attributes)
 
-## Components
+##Definitions
 
-Components let you group attributes together, they are just plain objects with attributes on it. You can even define these objects in different files and reuse them in multiple places. Components can define a scope.
+Components are described with definitions which are just plain objects with attributes, methods and nested definitions on it
 
-__Example__
+__Example Markup__
 
 ```html
-<h1>New user</h1>
 <form class="awesome-form">
   <input id="firstName" placeholder="First name">
   <input id="lastName" placeholder="Last name">
@@ -25,41 +25,146 @@ __Example__
 </form>
 ```
 
+__Definition Example__
+
 ```js
 import {
-  create,
-  visitable,
-  text,
+  clickable,
+  fillable
+} from 'ember-cli-page-object';
+
+const FormDefinition = {
+  scope: '.awesome-form',
+
+  firstName: fillable('#firstName'),
+  lastName: fillable('#lastName'),
+  submit: clickable('button')
+};
+```
+
+Component instances are built by the `create` function:
+
+__Usage__
+```js
+import { create } from 'ember-cli-page-object';
+
+const form = create(FormDefinition);
+
+await form
+  .firstName('John')
+  .lastName('Doe')
+  .submit();
+```
+
+You can also define custom methods to aggregate complex interactions:
+
+__Custom Method Example__
+
+```js
+import {
   fillable,
   clickable
 } from 'ember-cli-page-object';
 
+const FormDefinition = {
+  scope: '.awesome-form',
+
+  firstName: fillable('#firstName'),
+  lastName: fillable('#lastName'),
+  submit: clickable('button'),
+
+  save(firstName, lastName) {
+    return this
+      .firstName(firstName)
+      .lastName(lastName)
+      .submit();
+  }
+};
+```
+
+__Usage__
+```js
+await form.save('John', 'Doe');
+```
+
+Definitions can also be used as a part of higher order definitions. This way you can describe complex interfaces by composition of simpler component definitions:
+
+```js
+import { visitable } from 'ember-cli-page-object';
+
+const PageDefinition = {
+  visit: visitable('/users/new'),
+
+  form: FormDefinition
+}
+```
+
+__Custom Method Usage__
+```js
+const myPage = create(PageDefinition);
+
+await myPage
+  .visit()
+  .save('John', 'Doe');
+```
+
+## Scopes
+
+CSS selector `scope` encloses a component to a corresponding DOM element. Parent scopes are encountered when calculating a nested component selector.
+
+Given the following HTML
+
+```html
+
+<div class="article">
+  <p>Lorem ipsum dolor</p>
+</div>
+<div class="footer">
+  <p>Copyright Acme Inc.</p>
+</div>
+```
+
+the following configuration will match the article paragraph element
+
+```js
 const page = create({
-  visit: visitable('/user/create'),
-  title: text('h1'),
+  scope: '.article',
 
-  form: {
-    scope: '.awesome-form',
-
-    firstName: fillable('#firstName'),
-    lastName: fillable('#lastName'),
-    submit: clickable('button')
+  textBody: {
+    scope: 'p'
   }
 });
 
-page
-  .visit()
-  .form
-  .firstName('John')
-  .lastName('Doe')
-  .submit();
-
-andThen(function() {
-  // assert something
-});
+assert.equal(page.textBody.text, 'Lorem ipsum dolor.');
 ```
 
-## Default attributes
+You can reset parent scope by setting the `resetScope` attribute on the component definition.
+
+```js
+const form = create({
+  scope: '.my-form',
+
+  dialog: {
+    scope: '.some-dialog',
+
+    resetScope: true
+  }
+});
+
+await form.clickOn('Cancel');
+
+assert.ok(form.dialog.isVisible);
+```
+
+## Attributes
+
+Attributes allows to configure component's behavior.
+
+TBD
+
+### Actions
+
+### Default attributes
 
 By default, all components define some handy attributes and methods without being explicitly declared.
 
@@ -104,126 +209,9 @@ const page = create({
   }
 });
 
-page.visit();
+await page.visit();
 
-andThen(function() {
-  assert.ok(page.modal.contains('Are you sure you want to exit the page?'));
-});
+assert.ok(page.modal.contains('Are you sure you want to exit the page?'));
 
-page.modal.clickOn("I'm sure");
+await page.modal.clickOn("I'm sure");
 ```
-
-## Scopes
-
-The `scope` attribute can be used to reduce the set of matched elements to the ones enclosed by the given selector.
-
-Given the following HTML
-
-```html
-<div class="article">
-  <p>Lorem ipsum dolor</p>
-</div>
-<div class="footer">
-  <p>Copyright Acme Inc.</p>
-</div>
-```
-
-the following configuration will match the article paragraph element
-
-```js
-const page = create({
-  scope: '.article',
-
-  textBody: text('p'),
-});
-
-andThen(function() {
-  assert.equal(page.textBody, 'Lorem ipsum dolor.');
-});
-```
-
-The attribute's selector can be omited when the scope matches the element we want to use.
-
-Given the following HTML
-
-```html
-<form>
-  <input id="userName" value="a value" />
-  <button>Submit</button>
-</form>
-```
-
-We can define several attributes on the same `input` element as follows
-
-```js
-const page = create({
-  input: {
-    scope: '#userName',
-
-    hasError: hasClass('has-error'),
-    value: value(),
-    fillIn: fillable()
-  },
-
-  submit: clickable('button')
-});
-
-page
-  .input
-  .fillIn('an invalid value');
-
-page.submit();
-
-andThen(function() {
-  assert.ok(page.input.hasError, 'Input has an error');
-});
-```
-
-### A `component` inherits parent scope by default
-
-```html
-<div class="search">
-  <input placeholder="Search...">
-  <button>Search</button>
-</div>
-```
-
-```js
-const page = create({
-  search: {
-    scope: '.search',
-
-    input: {
-      fillIn: fillable('input'),
-      value: value('input')
-    }
-  }
-});
-```
-
-| call                      | translates to                 |
-|:--------------------------|:------------------------------|
-| `page.search.input.value` | `find('.search input').val()` |
-{: .table}
-
-You can reset parent scope by setting the `scope` and `resetScope` attribute on the component declaration.
-
-```js
-const page = create({
-  search: {
-    scope: '.search',
-
-    input: {
-      scope: 'input',
-      resetScope: true,
-
-      fillIn: fillable()
-    }
-  }
-});
-```
-
-| call                      | translates to         |
-|:--------------------------|:----------------------|
-| `page.search.input.value` | `find('input').val()` |
-{: .table}
