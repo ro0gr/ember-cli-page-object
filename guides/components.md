@@ -208,7 +208,9 @@ const form = create({
 })
 ```
 
-A result of an action is a `Promise`-like chainable page object node. It allows to write your scenarios:
+A result of an action is a `Promise`-like chainable page object node.
+
+Chaining allows to write scenarios in the following way:
 
 ```js
 await form
