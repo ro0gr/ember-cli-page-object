@@ -8,10 +8,10 @@ Describe functional fragments of the DOM
 * [Definitions](#definitions)
 * [Scopes](#scopes)
 * [Attributes](#attributes)
-  * [Actions](#default-attributes)
+  * [Actions](#actions)
   * [Default attributes](#default-attributes)
 
-##Definitions
+## Definitions
 
 Components are described with definitions which are just plain objects with attributes, methods and nested definitions on it
 
