@@ -142,7 +142,7 @@ const input = create({
 assert.equal(input.value, 'some value');
 ```
 
-In the assert statement above `value` attribute queries a DOM element with a selector equal to `input[name="my-input"]`.
+In the assert statement above [`value`](./api/value) attribute queries a DOM element with a selector equal to `input[name="my-input"]`.
 
 You can also specify CSS selector by passing a `scope` as an attribute's argument:
 
@@ -158,7 +158,7 @@ const customSelect = create({
 assert.equal(customSelect.value, 'some value');
 ```
 
-In the assert statement above `text` attribute queries a DOM element with a selector equal to `.my-select .trigger`.
+In the assert statement above [`text`](./api/text) attribute queries a DOM element with a selector equal to `.my-select .trigger`.
 
 ### Actions
 
