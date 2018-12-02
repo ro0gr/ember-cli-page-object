@@ -56,56 +56,24 @@ await form
   .submit();
 ```
 
-You can also define custom methods to aggregate complex interactions:
-
-__Custom Method Example__
-
-```js
-import {
-  fillable,
-  clickable
-} from 'ember-cli-page-object';
-
-const FormDefinition = {
-  scope: '.awesome-form',
-
-  firstName: fillable('#firstName'),
-  lastName: fillable('#lastName'),
-  submit: clickable('button'),
-
-  save(firstName, lastName) {
-    return this
-      .firstName(firstName)
-      .lastName(lastName)
-      .submit();
-  }
-};
-```
-
-__Usage__
-```js
-await form.save('John', 'Doe');
-```
-
 Definitions can also be used as a part of higher order definitions. This way you can describe complex interfaces by composition of simpler component definitions:
 
 ```js
-import { visitable } from 'ember-cli-page-object';
+import { create, visitable } from 'ember-cli-page-object';
 
 const PageDefinition = {
   visit: visitable('/users/new'),
 
   form: FormDefinition
 }
-```
 
-__Custom Method Usage__
-```js
 const myPage = create(PageDefinition);
 
-await myPage
-  .visit()
-  .save('John', 'Doe');
+await myPage.visit()
+  .form
+  .firstName('John')
+  .lastName('Doe')
+  .submit();
 ```
 
 ## Scopes
