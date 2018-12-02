@@ -174,6 +174,9 @@ const form = create({
 
   submit: triggerable('submit')
 })
+
+await form.fillIn('some text');
+await form.submit();
 ```
 
 A result of an action is a `Promise`-like chainable page object node.
