@@ -206,37 +206,3 @@ The following commonly used attributes are included in every component page obje
 * [select](/docs/v1.14.x/api/selectable)
 * [text](/docs/v1.14.x/api/text)
 * [value](/docs/v1.14.x/api/value)
-
-<div class="alert alert-warning" role="alert">
-  <strong>Note</strong> that these attributes will use the component scope as their selector.
-</div>
-
-__Example__
-
-Suppose you have a modal dialog
-
-```html
-<div class="modal">
-  Are you sure you want to exit the page?
-  <button>I'm sure</button>
-  <button>No</button>
-</form>
-```
-
-```js
-import { create, visitable } from 'ember-cli-page-object';
-
-const page = create({
-  visit: visitable('/'),
-
-  modal: {
-    scope: '.modal'
-  }
-});
-
-await page.visit();
-
-assert.ok(page.modal.contains('Are you sure you want to exit the page?'));
-
-await page.modal.clickOn("I'm sure");
-```
