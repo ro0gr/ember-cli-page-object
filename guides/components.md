@@ -158,11 +158,63 @@ assert.ok(form.dialog.isVisible);
 
 ## Attributes
 
-Attributes allows to configure component's behavior.
+Attributes are just Page Object aware wrappers around the low level DOM operations. It allows you to configure component's behavior in a declarative fashion.
 
-TBD
+By default attribute uses a parent component's `scope`:
+
+```js
+import { create, value } from 'ember-cli-page-object';
+
+const input = create({
+  scope: 'input[name="my-input"]',
+
+  value: value()
+})
+
+assert.equal(input.value, 'some value');
+```
+
+In the assert statement above `value` attribute queries a DOM element with a selector equal to `input[name="my-input"]`.
+
+You can also specify CSS selector by passing a `scope` as an attribute's argument:
+
+```js
+import { create, text } from 'ember-cli-page-object';
+
+const customSelect = create({
+  scope: '.my-select',
+
+  value: text('.selected')
+})
+
+assert.equal(customSelect.value, 'some value');
+```
+
+In the assert statement above `text` attribute queries a DOM element with a selector equal to `.my-select .trigger`.
 
 ### Actions
+
+Actions are a special kind of attributes which allows to perform async operations on the DOM.
+
+```js
+import { create, fillable, triggerable } from 'ember-cli-page-object';
+
+const form = create({
+  scope: 'form.search-form',
+
+  fillIn: fillable('input[type="search"]'),
+
+  submit: triggerable('submit')
+})
+```
+
+A result of an action is a `Promise`-like chainable page object node. It allows to write your scenarios:
+
+```js
+await form
+  .fillIn('some text')
+  .submit();
+```
 
 ### Default attributes
 
