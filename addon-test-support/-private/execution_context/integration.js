@@ -1,5 +1,6 @@
 import $ from '-jquery';
 import { run } from '@ember/runloop';
+import { run as runAction } from '../action';
 import {
   guardMultiple,
   buildSelector,
@@ -20,16 +21,14 @@ export default function IntegrationExecutionContext(pageObjectNode, testContext)
 }
 
 IntegrationExecutionContext.prototype = {
-  runAsync(cb) {
+  run(cb) {
     run(() => {
       cb(this);
     });
-
-    return this.chainable();
   },
 
-  chainable() {
-    return this.pageObjectNode;
+  runAsync(cb) {
+    return runAction(this.pageObjectNode, cb);
   },
 
   visit() {},
