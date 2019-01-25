@@ -325,7 +325,7 @@ export function isPageObject(property){
     return (meta && meta.__poDef__)
   } else{
     return false;
-  } 
+  }
 }
 
 export function getPageObjectDefinition(node){
