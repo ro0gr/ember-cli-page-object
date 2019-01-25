@@ -1,3 +1,4 @@
+export { default as invokeHelper } from '../-private/invoke-helper';
 export { assign } from '@ember/polyfills';
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
@@ -325,7 +326,7 @@ export function isPageObject(property){
     return (meta && meta.__poDef__)
   } else{
     return false;
-  } 
+  }
 }
 
 export function getPageObjectDefinition(node){
