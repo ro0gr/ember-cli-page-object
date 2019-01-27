@@ -64,19 +64,6 @@ ExecutionContext.prototype = {
     return blur(element);
   },
 
-  assertElementExists(selector, options) {
-    let result = this.getElements(selector, options);
-
-    if (result.length === 0) {
-      throwBetterError(
-        this.pageObjectNode,
-        options.pageObjectKey,
-        ELEMENT_NOT_FOUND,
-        { selector }
-      );
-    }
-  },
-
   find(selector, options) {
     selector = buildSelector(this.pageObjectNode, selector, options);
     let result = this.getElements(selector, options);
@@ -111,17 +98,5 @@ ExecutionContext.prototype = {
     } else {
       return $(selector, getContext().element);
     }
-  },
-
-  invokeHelper(selector, options, helper, ...args) {
-    let element = this.getElements(selector, options)[0];
-    return helper(element, ...args).catch((e) => {
-      throwBetterError(
-        this.pageObjectNode,
-        options.pageObjectKey,
-        e.message || e.toString(),
-        { selector }
-      );
-    });
   }
 };
