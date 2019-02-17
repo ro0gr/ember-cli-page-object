@@ -1,5 +1,5 @@
 import EmberError from '@ember/error';
-import Ceibo from 'ceibo';
+import { buildPath } from './helpers';
 
 export const ELEMENT_NOT_FOUND = 'Element not found.';
 
@@ -16,20 +16,13 @@ export const ELEMENT_NOT_FOUND = 'Element not found.';
 export function throwBetterError(node, key, err, { selector } = {}) {
   let fullErrorMessage = typeof err === Error ? err.message : err.toString();
 
-  let path = [key];
-  let current;
-
-  for (current = node; current; current = Ceibo.parent(current)) {
-    path.unshift(Ceibo.meta(current).key);
-  }
-
-  path[0] = 'page';
+  let path = buildPath(node);
   if (key && key.trim().length > 0) {
     path.push(key);
   }
 
   if (path.length > 0) {
-    fullErrorMessage += `\n\nPageObject: '${path.join('.')}'`;
+    fullErrorMessage += `\n\nPageObject: 'page.${path.join('.')}'`;
   }
 
   if (typeof selector === 'string' && selector.trim().length > 0) {

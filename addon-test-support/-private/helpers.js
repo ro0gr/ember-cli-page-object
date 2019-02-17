@@ -213,19 +213,26 @@ export function getContext(node) {
   }
 }
 
-function getAllValuesForProperty(node, property) {
-  let iterator = node;
-  let values = [];
+export function collectFromRoot(node, cb) {
+  let valuesPath = [];
 
-  while (isPresent(iterator)) {
-    if (isPresent(iterator[property])) {
-      values.push(iterator[property]);
+  for (let current = node; current; current = Ceibo.parent(current)) {
+    const val = cb(current);
+
+    if (typeof val !== 'undefined') {
+      valuesPath.unshift(val);
     }
-
-    iterator = Ceibo.parent(iterator);
   }
 
-  return values;
+  return valuesPath;
+}
+
+export function buildPath(node) {
+  return collectFromRoot(node, (n) => {
+    if (Ceibo.parent(n)) {
+      return Ceibo.meta(n).key
+    }
+  });
 }
 
 /**
@@ -237,9 +244,15 @@ function getAllValuesForProperty(node, property) {
  * @return {string} Full scope of node
  */
 export function fullScope(node) {
-  let scopes = getAllValuesForProperty(node, 'scope');
+  const scopes = collectFromRoot(node, n => {
+    const { scope } = getPageObjectDefinition(n);
 
-  return scopes.reverse().join(' ');
+    if (isPresent(scope)) {
+      return scope;
+    }
+  })
+
+  return scopes.join(' ');
 }
 
 /**
