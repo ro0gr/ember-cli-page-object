@@ -1,6 +1,6 @@
-import { assign, findClosestValue } from '../-private/helpers';
-import { getExecutionContext } from '../-private/execution_context';
-import { buildSelector } from './click-on-text/helpers';
+import { findElement } from '../extend/index';
+import { run } from '../-private/action';
+import { assign, invokeHelper } from '../-private/helpers';
 
 /**
  * Clicks on an element containing specified text.
@@ -84,24 +84,33 @@ import { buildSelector } from './click-on-text/helpers';
  * @param {string} options.testContainer - Context where to search elements in the DOM
  * @return {Descriptor}
  */
-export function clickOnText(selector, userOptions = {}) {
+export function clickOnText(scope, options = {}) {
   return {
     isDescriptor: true,
 
     get(key) {
       return function(textToClick) {
-        let executionContext = getExecutionContext(this);
-        let options = assign({ pageObjectKey: `${key}("${textToClick}")`, contains: textToClick }, userOptions);
-
-        return executionContext.runAsync((context) => {
-          let fullSelector = buildSelector(this, context, selector, options);
-          let container = options.testContainer || findClosestValue(this, 'testContainer');
-
-          context.assertElementExists(fullSelector, options);
-
-          return context.click(fullSelector, container, options);
+        const query = assign({}, options, {
+          pageObjectKey: `${key}("${textToClick}")`,
+          contains: textToClick,
+          // In document hierarchy there are lots of nodes containing specified text
+          // we want to find the deepest one to click.
+          last: true
         });
-      };
+
+        return run(this, ({ click }) => {
+          const childSelector = `${scope || ''} `;
+
+          let selector;
+          if (findElement(this, childSelector, query).length) {
+            selector = childSelector;
+          } else {
+            selector = scope;
+          }
+
+          return invokeHelper(this, selector, query, click);
+        });
+      }
     }
   };
 }
