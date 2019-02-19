@@ -1,5 +1,5 @@
-import { assign } from '../-private/helpers';
-import { getExecutionContext } from '../-private/execution_context';
+import { run } from '../-private/action';
+import { assign, invokeHelper } from '../-private/helpers';
 
 /**
  *
@@ -62,17 +62,18 @@ import { getExecutionContext } from '../-private/execution_context';
  * @param {string} options.testContainer - Context where to search elements in the DOM
  * @return {Descriptor}
 */
-export function blurrable(selector, userOptions = {}) {
+export function blurrable(scope, userOptions = {}) {
   return {
     isDescriptor: true,
 
     get(key) {
       return function() {
-        const executionContext = getExecutionContext(this);
-        const options = assign({ pageObjectKey: `${key}()` }, userOptions);
+        const query = assign({
+          pageObjectKey: `${key}()`,
+        }, userOptions);
 
-        return executionContext.runAsync((context) => {
-          return context.blur(selector, options);
+        return run(this, ({ blur }) => {
+          return invokeHelper(this, scope, query, blur);
         });
       };
     }
