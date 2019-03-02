@@ -2,7 +2,9 @@ import Ceibo from 'ceibo';
 import { render, setContext, removeContext } from './-private/context';
 import { assign, getPageObjectDefinition, isPageObject, storePageObjectDefinition } from './-private/helpers';
 import { visitable } from './properties/visitable';
-import dsl from './-private/dsl';
+import Fragment from './-private/fragment';
+
+const DSL = new Fragment();
 
 //
 // When running RFC268 tests, we have to play some tricks to support chaining.
@@ -46,9 +48,9 @@ import dsl from './-private/dsl';
 function buildObject(node, blueprintKey, blueprint, defaultBuilder) {
   let definition;
 
-  // to allow page objects to exist in definitions, we store the definition that 
+  // to allow page objects to exist in definitions, we store the definition that
   // created the page object, allowing us to substitute a page object with its
-  // definition during creation 
+  // definition during creation
   if (isPageObject(blueprint)) {
     definition = getPageObjectDefinition(blueprint);
   } else {
@@ -59,13 +61,13 @@ function buildObject(node, blueprintKey, blueprint, defaultBuilder) {
   if(blueprintToStore._chainedTree){
     delete blueprintToStore._chainedTree;
   }
-  blueprint = assign({}, dsl, definition);
+  blueprint = assign({}, DSL, definition);
 
   const [ instance, blueprintToApply ] = defaultBuilder(node, blueprintKey, blueprint, defaultBuilder);
 
   // persist definition once we have an instance
   storePageObjectDefinition(instance, blueprintToStore);
-  
+
   return [ instance, blueprintToApply ];
 }
 
