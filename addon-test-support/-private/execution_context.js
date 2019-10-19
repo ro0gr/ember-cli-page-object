@@ -1,5 +1,5 @@
 import { getContext as getIntegrationTestContext } from './helpers';
-import { getContext, visit } from './compatibility';
+import { getContext as getTestContext, visit } from './compatibility';
 import AcceptanceExecutionContext from './execution_context/acceptance';
 import IntegrationExecutionContext from './execution_context/integration';
 import Rfc268Context from './execution_context/rfc268';
@@ -24,17 +24,26 @@ export function getExecutionContext(pageObjectNode) {
   // first, and only if that hasn't happened, check to see if we're in an
   // RFC232/RFC268 test, and if not, fall back on assuming a pre-RFC268
   // acceptance test, which is the only remaining supported scenario.
+  debugger
   let integrationTestContext = getIntegrationTestContext(pageObjectNode);
   let contextName;
   if (integrationTestContext) {
     contextName = 'integration';
+  } else if (isAcceptanceTest()) {
+    contextName = 'acceptance';
   } else if (isRfc268Test()) {
     contextName = 'rfc268';
-  } else {
-    contextName = 'acceptance';
+  }
+
+  if (!contextName) {
+    throw new Error('Can not detect test type. Please make sure you use the latest of "@ember/test-helpers".');
   }
 
   return new executioncontexts[contextName](pageObjectNode, integrationTestContext);
+}
+
+function isAcceptanceTest() {
+  return window.visit && window.andThen;
 }
 
 /**
@@ -53,7 +62,7 @@ export function isRfc268Test() {
   // Note that if `page.setContext(this)` has been called, we'll never get here
   // and will just be running with the integration context (even if the test is
   // an RFC268 test).
-  let hasValidTestContext = Boolean(getContext());
+  let hasValidTestContext = Boolean(getTestContext());
   if (!hasValidTestContext) {
     return false;
   }

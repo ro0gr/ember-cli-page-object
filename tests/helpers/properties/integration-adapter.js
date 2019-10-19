@@ -31,7 +31,7 @@ IntegrationAdapter.prototype = {
       test.set('raw', template);
     }
 
-    page.setContext(test);
+    // page.setContext(test);
 
     this.context.render(hbs`{{html-render html=raw}}`);
   },

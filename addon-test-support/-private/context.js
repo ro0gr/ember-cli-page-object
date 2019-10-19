@@ -54,6 +54,12 @@ export function render(template) {
  * @return {PageObject} - the page object
  */
 export function setContext(context) {
+  deprecate('setContext() is deprecated. Please make sure you use "@ember/test-helpers" of v1 or higher.', false, {
+    id: 'ember-cli-page-object.set-context',
+    until: '2.0.0',
+    url: 'https://gist.github.com/san650/17174e4b7b1fd80b049a47eb456a7cdc#file-page-render-js',
+  });
+
   if (context) {
     this.context = context;
   }
