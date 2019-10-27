@@ -28,9 +28,7 @@ PageObject: 'page.fillInByClue()'
 
         await throws(assert, function() {
           return page.fillInByClue(clue, 'dummy text');
-        }, function(e) {
-          return e.message === expectedMessage;
-        }, 'Not found error with a full selector has been raised');
+        }, new Error(expectedMessage), 'Not found error with a full selector has been raised');
       });
     })
   });
