@@ -1,27 +1,17 @@
-import { resolve } from 'rsvp';
 import { findElementWithAssert } from 'ember-cli-page-object/extend';
 import run from '../-private/run';
 import { throwBetterError } from '../-private/better-errors';
 
 export default function action(node, selector, query, cb) {
-  if (!query.key) {
-    throw new Error(`Query key must be present`);
-  }
+  const domElements = findElementWithAssert(node, selector, Object.assign({
+    multiple: true
+  }, query)).get();
 
-  const domElement = findElementWithAssert(node, selector, query).get(0);
-
-  const onFailure = (e) => throwBetterError(node, query.key, e, { selector });
-
-  let asyncResult;
-  try {
-    asyncResult = run(this, () => {
+  return domElements.reduce((node, domElement) => {
+    return run(node, () => {
       return cb(domElement);
     });
-  } catch (e) {
-    onFailure(e);
-  }
-
-  return asyncResult && asyncResult.then
-    ? asyncResult.catch(onFailure)
-    : resolve(asyncResult);
+  }, node).then(undefined, (e) => {
+    return throwBetterError(node, query.pageObjectKey, e, { selector })
+  });
 }
