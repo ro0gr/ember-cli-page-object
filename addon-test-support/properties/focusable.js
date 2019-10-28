@@ -1,5 +1,6 @@
+import run from '../-private/run';
 import { assign } from '../-private/helpers';
-import { getExecutionContext } from '../-private/execution_context';
+import { action } from '../extend/index';
 
 /**
  *
@@ -68,11 +69,12 @@ export function focusable(selector, userOptions = {}) {
 
     get(key) {
       return function() {
-        const executionContext = getExecutionContext(this);
-        const options = assign({ pageObjectKey: `${key}()` }, userOptions);
+        const query = assign({
+          pageObjectKey: `${key}()`,
+        }, userOptions);
 
-        return executionContext.runAsync((context) => {
-          return context.focus(selector, options);
+        return run(this, ({ focus }) => {
+          return action(this, selector, query, focus);
         });
       };
     }
