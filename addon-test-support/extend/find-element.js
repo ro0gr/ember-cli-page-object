@@ -1,5 +1,5 @@
 import { getExecutionContext } from '../-private/execution_context';
-import { deprecate } from '@ember/application/deprecations';
+import { deprecate } from '../-private/utils';
 
 /**
  * @public

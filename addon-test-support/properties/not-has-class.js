@@ -1,6 +1,6 @@
 import { assign } from '../-private/helpers';
 import { findOne, findMany } from '../extend';
-import { A } from '@ember/array';
+import { A } from '../-private/utils';
 
 /**
  * @public

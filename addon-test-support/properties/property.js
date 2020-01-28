@@ -1,6 +1,6 @@
 import { assign } from '../-private/helpers';
 import { findMany, findOne } from '../extend';
-import $ from '-jquery';
+import $ from 'jquery';
 
 /**
  * @public

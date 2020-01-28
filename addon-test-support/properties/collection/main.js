@@ -1,5 +1,5 @@
 /* global Symbol */
-import { A } from '@ember/array';
+import { A } from '../../-private/utils';
 import { buildSelector, assign, isPageObject, getPageObjectDefinition } from '../../-private/helpers';
 import { create } from '../../create';
 import { count } from '../count';

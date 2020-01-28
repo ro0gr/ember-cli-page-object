@@ -1,8 +1,6 @@
-import {
-  throwBetterError
-} from '../better-errors';
+import { throwBetterError } from '../better-errors';
 
-import $ from '-jquery';
+import $ from 'jquery';
 
 /**
  * @private

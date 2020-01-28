@@ -1,6 +1,6 @@
 import { assign, normalizeText } from '../-private/helpers';
 import { findMany, findOne } from '../extend';
-import $ from '-jquery';
+import $ from 'jquery';
 
 function identity(v) {
   return v;

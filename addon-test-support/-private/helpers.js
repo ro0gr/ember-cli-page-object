@@ -1,13 +1,13 @@
-export { assign } from '@ember/polyfills';
-import { A } from '@ember/array';
-import { assert } from '@ember/debug';
-import { get } from '@ember/object';
-import { isPresent } from '@ember/utils';
+export { assign } from './utils';
+import { A } from './utils';
+import { assert } from './utils';
+import { get } from './utils';
+import { isPresent } from './utils';
 import Ceibo from 'ceibo';
-import { deprecate } from '@ember/application/deprecations';
+import { deprecate } from './utils';
 import { getContext as getEmberTestHelpersContext } from './compatibility';
 
-import $ from '-jquery';
+import $ from 'jquery';
 
 class Selector {
   constructor(node, scope, selector, filters) {

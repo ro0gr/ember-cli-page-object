@@ -1,7 +1,7 @@
 import { assign, guardMultiple } from '../-private/helpers';
 import { findMany } from '../extend';
-import { A } from '@ember/array';
-import $ from '-jquery';
+import { A } from '../-private/utils';
+import $ from 'jquery';
 
 /**
  * Validates if an element or set of elements is hidden or does not exist in the DOM.

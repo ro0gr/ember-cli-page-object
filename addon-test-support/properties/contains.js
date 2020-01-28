@@ -1,6 +1,6 @@
 import { assign } from '../-private/helpers';
 import { findMany, findOne } from '../extend';
-import { A } from '@ember/array';
+import { A } from '../-private/utils';
 
 /**
  * Returns a boolean representing whether an element or a set of elements contains the specified text.

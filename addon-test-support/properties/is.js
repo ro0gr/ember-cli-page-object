@@ -1,4 +1,4 @@
-import { deprecate } from '@ember/application/deprecations';
+import { deprecate } from '../-private/utils';
 import { assign, every } from '../-private/helpers';
 import { findElementWithAssert } from '../extend';
 

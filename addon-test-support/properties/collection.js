@@ -1,6 +1,4 @@
-import { deprecate } from '@ember/application/deprecations';
-import { warn } from '@ember/debug';
-
+import { deprecate, warn } from '../-private/utils';
 import { collection as mainCollection } from './collection/main';
 import { collection as legacyCollection } from './collection/legacy';
 

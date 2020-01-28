@@ -1,6 +1,6 @@
 import { assign } from '../-private/helpers';
 import { findOne, findMany } from '../extend';
-import { A } from '@ember/array';
+import { A } from '../-private/utils';
 
 /**
  * Validates if an element or a set of elements have a given CSS class.
