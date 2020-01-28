@@ -1,4 +1,3 @@
-import { resolve } from 'rsvp';
 import { getExecutionContext } from './execution_context';
 import { getRoot } from './helpers';
 import Ceibo from 'ceibo';
@@ -27,7 +26,7 @@ export function run(node, cb) {
     // we need to wait on its promise if it has one so the
     // previous invocations can resolve before we run ours.
     let root = getRoot(node)
-    root._promise = resolve(root._promise).then(() => cb(adapter));
+    root._promise = Promise.resolve(root._promise).then(() => cb(adapter));
 
     return node;
   } else {
