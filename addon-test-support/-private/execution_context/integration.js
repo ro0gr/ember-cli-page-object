@@ -1,5 +1,5 @@
-import $ from '-jquery';
-import { run } from '@ember/runloop';
+import $ from 'jquery';
+// import { run } from '@ember/runloop';
 import { run as runAction } from '../action';
 import {
   guardMultiple,
@@ -14,7 +14,7 @@ import {
   ELEMENT_NOT_FOUND,
   throwBetterError
 } from '../better-errors';
-import wait from 'ember-test-helpers/wait';
+// import wait from 'ember-test-helpers/wait';
 
 export default function IntegrationExecutionContext(pageObjectNode, testContext) {
   this.pageObjectNode = pageObjectNode;

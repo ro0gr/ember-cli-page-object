@@ -1,12 +1,12 @@
-import $ from '-jquery';
+import $ from 'jquery';
 
-import {
-  click,
-  triggerEvent,
-  keyEvent,
-  focus,
-  blur
-} from 'ember-native-dom-helpers';
+// import {
+//   click,
+//   triggerEvent,
+//   keyEvent,
+//   focus,
+//   blur
+// } from 'ember-native-dom-helpers';
 
 import { run } from '../action';
 import {

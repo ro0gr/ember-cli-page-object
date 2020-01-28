@@ -35,12 +35,12 @@
 // handles relative imports correctly, so there's no way to get at it to stub it
 // from another module/test. So instead we use the global require, which is only
 // available via window.require, so our tests can stub it out.
-const { require } = window;
+// const { require } = window;
 
 let helpers;
 let waitFn;
 
-if (require.has('@ember/test-helpers')) {
+if (false && require.has('@ember/test-helpers')) {
   helpers = require('@ember/test-helpers');
 } else {
   helpers = {
@@ -50,7 +50,7 @@ if (require.has('@ember/test-helpers')) {
   };
 }
 
-if (require.has('ember-test-helpers/wait')) {
+if (false && require.has('ember-test-helpers/wait')) {
   // This is implemented as a function that calls `ember-test-helpers/wait`
   // rather than just assigning `helpers.wait = require(...).default` because
   // since this code executes while modules are initially loading, under certain

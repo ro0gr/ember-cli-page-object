@@ -1,4 +1,4 @@
-import { visit } from 'ember-native-dom-helpers';
+// import { visit } from 'ember-native-dom-helpers';
 import ExecutionContext from './native-events-context';
 import { wait } from '../compatibility';
 
