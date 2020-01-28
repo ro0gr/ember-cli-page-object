@@ -15,6 +15,7 @@
     "pageobject",
     "testing"
   ],
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/san650/ember-cli-page-object.git"
