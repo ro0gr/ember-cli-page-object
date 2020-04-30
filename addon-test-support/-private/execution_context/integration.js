@@ -115,23 +115,6 @@ IntegrationExecutionContext.prototype = {
     }
   },
 
-  find(selector, options) {
-    let result;
-    let container = options.testContainer || findClosestValue(this.pageObjectNode, 'testContainer');
-
-    selector = buildSelector(this.pageObjectNode, selector, options);
-
-    if (container) {
-      result = $(selector, container);
-    } else {
-      result = this.testContext.$(selector);
-    }
-
-    guardMultiple(result, selector, options.multiple);
-
-    return result;
-  },
-
   findWithAssert(selector, options) {
     let result;
     let container = options.testContainer || findClosestValue(this.pageObjectNode, 'testContainer');

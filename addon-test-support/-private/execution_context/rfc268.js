@@ -74,15 +74,6 @@ ExecutionContext.prototype = {
     }
   },
 
-  find(selector, options) {
-    selector = buildSelector(this.pageObjectNode, selector, options);
-    let result = this.getElements(selector, options);
-
-    guardMultiple(result, selector, options.multiple);
-
-    return result;
-  },
-
   findWithAssert(selector, options) {
     selector = buildSelector(this.pageObjectNode, selector, options);
     let result = this.getElements(selector, options);

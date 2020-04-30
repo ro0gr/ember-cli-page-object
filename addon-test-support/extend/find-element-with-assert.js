@@ -1,8 +1,6 @@
-import { getExecutionContext } from '../-private/execution_context';
-import { deprecate } from '@ember/application/deprecations';
-
 /**
  * @public
+ * @deprecated
  *
  * Returns a jQuery element matched by a selector built from parameters
  *
@@ -36,13 +34,4 @@ import { deprecate } from '@ember/application/deprecations';
  * @throws Will throw an error if no element matches selector
  * @throws Will throw an error if multiple elements are matched by selector and multiple option is not set
  */
-export function findElementWithAssert(pageObjectNode, targetSelector, options = {}) {
-  const shouldShowMutlipleDeprecation = 'multiple' in options;
-  deprecate('"multiple" property is deprecated', !shouldShowMutlipleDeprecation, {
-    id: 'ember-cli-page-object.multiple',
-    until: '2.0.0',
-    url: 'https://ember-cli-page-object.js.org/docs/v1.17.x/deprecations/#multiple',
-  });
-
-  return getExecutionContext(pageObjectNode).findWithAssert(targetSelector, options);
-}
+export { findElementWithAssert } from '../-private/find';
