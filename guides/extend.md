@@ -94,7 +94,6 @@ In order to ease the migration, you may find useful the [`find-one`](https://git
     -   `options.contains` **string** Filter by using :contains('foo') pseudo-class
     -   `options.last` **boolean** Filter by using :last pseudo-class
     -   `options.visible` **boolean** Filter by using :visible pseudo-class
-    -   `options.multiple` **boolean** Specify if built selector can match multiple elements.
     -   `options.testContainer` **String** Context where to search elements in the DOM
     -   `options.at` **number** Filter by index using :eq(x) pseudo-class
     -   `options.pageObjectKey` **String** Used in the error message when the element is not found
@@ -131,7 +130,6 @@ Note: in the v2 series we are going to deprecate `findElement`. It's recommended
     -   `options.at` **number** Filter by index using :eq(x) pseudo-class
     -   `options.last` **boolean** Filter by using :last pseudo-class
     -   `options.visible` **boolean** Filter by using :visible pseudo-class
-    -   `options.multiple` **boolean** Specify if built selector can match multiple elements.
     -   `options.testContainer` **String** Context where to search elements in the DOM
 
 **Examples**

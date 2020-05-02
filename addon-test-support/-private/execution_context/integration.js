@@ -22,6 +22,13 @@ export default function IntegrationExecutionContext(pageObjectNode, testContext)
 }
 
 IntegrationExecutionContext.prototype = {
+  get testContainer() {
+    // @todo: fix usage of private `_element`
+    return this.testContext ?
+      this.testContext._element :
+      '#ember-testing';
+  },
+
   andThen(cb) {
     run(() => {
       cb(this)
