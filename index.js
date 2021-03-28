@@ -8,9 +8,6 @@ module.exports = {
       useBabelConfig: true
     },
     nodeAssets: {
-      ceibo: {
-        vendor: ['index.js']
-      },
       jquery: {
         vendor: ['dist/jquery.js'],
         destDir: 'ecpo-jquery'
@@ -20,8 +17,6 @@ module.exports = {
 
   included() {
     this.app = this._findHost();
-
-    this.import('vendor/ceibo/index.js', { type: 'test' });
 
     this.import('vendor/ecpo-jquery/dist/jquery.js', { type: 'test' });
     this.import('vendor/shims/ecpo-jquery.js', { type: 'test' });
