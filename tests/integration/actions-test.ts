@@ -10,6 +10,7 @@ import {
 import require from 'require';
 
 import {
+  alias,
   create,
   collection,
   attribute,
@@ -26,10 +27,6 @@ import {
   isPresent,
   isVisible
 } from 'ember-cli-page-object';
-
-import {
-  alias,
-} from 'ember-cli-page-object/macros';
 
 if (require.has('@ember/test-helpers')) {
   const { render } = require('@ember/test-helpers');

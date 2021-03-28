@@ -1,7 +1,6 @@
 import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
-import { create } from 'ember-cli-page-object';
-import { findMany } from 'ember-cli-page-object/extend';
+import { setupRenderingTest } from '../../helpers';
+import { create, findMany } from 'ember-cli-page-object';
 import hbs from 'htmlbars-inline-precompile';
 import require from 'require';
 
@@ -26,12 +25,12 @@ if (require.has('@ember/test-helpers')) {
       let page = create({ scope: '.lorem' });
 
       await this.render(hbs`
-      <em class="lorem"> 
-        <span class="dolor"></span> 
-        <span class="dolor"></span> 
-      </em> 
-      <span class="ipsum"> 
-        <span class="dolor"></span> 
+      <em class="lorem">
+        <span class="dolor"></span>
+        <span class="dolor"></span>
+      </em>
+      <span class="ipsum">
+        <span class="dolor"></span>
       </span>
     `);
 

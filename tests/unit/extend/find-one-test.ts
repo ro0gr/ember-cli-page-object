@@ -1,7 +1,8 @@
 import { module, test } from 'qunit';
-import { setupRenderingTest } from 'ember-qunit';
+import { setupRenderingTest } from '../../helpers';
 import { create } from 'ember-cli-page-object';
-import { findOne } from 'ember-cli-page-object/extend';
+
+import { findOne } from 'ember-cli-page-object';
 import hbs from 'htmlbars-inline-precompile';
 
 import require from 'require';

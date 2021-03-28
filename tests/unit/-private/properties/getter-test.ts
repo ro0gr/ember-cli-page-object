@@ -4,7 +4,7 @@ import {
   property,
   value
 } from 'ember-cli-page-object';
-import { getter } from 'ember-cli-page-object/macros';
+import { getter } from 'ember-cli-page-object';
 import { module, test } from 'qunit';
 
 module('getter', function(hooks) {

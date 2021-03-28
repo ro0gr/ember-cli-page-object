@@ -41,9 +41,12 @@ export { value };
 import { visitable } from './properties/visitable';
 export { visitable };
 
-export { findElement } from './extend/find-element';
-export { findElementWithAssert } from './extend/find-element-with-assert';
 export { buildSelector } from './-private/helpers';
+
+export * from './extend';
+export * from './macros';
+export * from './adapters';
+export * from './adapter';
 
 export default {
   attribute,

@@ -1,5 +1,6 @@
 import { module, test } from 'qunit';
 import {
+  alias,
   clickable,
   clickOnText,
   collection,
@@ -10,7 +11,6 @@ import {
   visitable,
 } from 'ember-cli-page-object';
 
-import { alias } from 'ember-cli-page-object/macros';
 import { setupApplicationTest } from '../helpers';
 
 import { settled, waitUntil } from '@ember/test-helpers';

@@ -1,4 +1,7 @@
 import Adapter from '../adapter';
+import RFC268Adapter from './rfc268';
+
+export { RFC268Adapter };
 
 let _adapter;
 
