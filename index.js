@@ -3,88 +3,88 @@
 module.exports = {
   name: require('./package').name,
 
-  options: {
-    'ember-cli-babel': {
-      useBabelConfig: true,
-    },
-    nodeAssets: {
-      ceibo: {
-        vendor: ['index.js'],
-      },
-      jquery: {
-        vendor: ['dist/jquery.js'],
-        destDir: 'ecpo-jquery',
-      },
-    },
-  },
+  // options: {
+  //   'ember-cli-babel': {
+  //     useBabelConfig: true,
+  //   },
+  //   nodeAssets: {
+  //     ceibo: {
+  //       vendor: ['index.js'],
+  //     },
+  //     jquery: {
+  //       vendor: ['dist/jquery.js'],
+  //       destDir: 'ecpo-jquery',
+  //     },
+  //   },
+  // },
 
-  included() {
-    this.app = this._findHost();
+  // included() {
+  //   this.app = this._findHost();
 
-    this.import('vendor/ceibo/index.js', { type: 'test' });
+  //   this.import('vendor/ceibo/index.js', { type: 'test' });
 
-    this.import('vendor/ecpo-jquery/dist/jquery.js', { type: 'test' });
-    this.import('vendor/shims/ecpo-jquery.js', { type: 'test' });
+  //   this.import('vendor/ecpo-jquery/dist/jquery.js', { type: 'test' });
+  //   this.import('vendor/shims/ecpo-jquery.js', { type: 'test' });
 
-    this._super.included.apply(this, arguments);
-  },
+  //   this._super.included.apply(this, arguments);
+  // },
 
-  treeForAddonTestSupport(tree) {
-    const testSupportTree = this._super(tree);
+  // treeForAddonTestSupport(tree) {
+  //   const testSupportTree = this._super(tree);
 
-    const mergeTrees = require('broccoli-merge-trees');
-    const writeFile = require('broccoli-file-creator');
+  //   const mergeTrees = require('broccoli-merge-trees');
+  //   const writeFile = require('broccoli-file-creator');
 
-    // Generate re-exports for public modules to allow
-    // import w/o "test-support/" part in the path:
-    //
-    // `import { clickable } from 'ember-cli-page-object';`
-    //
-    // instead of:
-    //
-    // `import { clickable } from 'ember-cli-page-object/test-support';`
-    //
-    // which is a default behavior in ember-cli
-    const reexportsTree = mergeTrees(
-      ['index', 'extend', 'macros', 'adapter', 'adapters']
-        .map((publicModuleName) =>
-          writeFile(
-            `/${this.moduleName()}/${publicModuleName}.js`,
-            `export * from '${this.moduleName()}/test-support/${publicModuleName}';`
-          )
-        )
-        .concat(
-          [
-            'adapters/acceptance-native-events',
-            'adapters/acceptance',
-            'adapters/integration-native-events',
-            'adapters/integration',
-            'adapters/rfc268',
-          ].map((publicModuleName) =>
-            writeFile(
-              `/${this.moduleName()}/${publicModuleName}.js`,
-              `export { default } from '${this.moduleName()}/test-support/${publicModuleName}';`
-            )
-          )
-        )
-    );
+  //   // Generate re-exports for public modules to allow
+  //   // import w/o "test-support/" part in the path:
+  //   //
+  //   // `import { clickable } from 'ember-cli-page-object';`
+  //   //
+  //   // instead of:
+  //   //
+  //   // `import { clickable } from 'ember-cli-page-object/test-support';`
+  //   //
+  //   // which is a default behavior in ember-cli
+  //   const reexportsTree = mergeTrees(
+  //     ['index', 'extend', 'macros', 'adapter', 'adapters']
+  //       .map((publicModuleName) =>
+  //         writeFile(
+  //           `/${this.moduleName()}/${publicModuleName}.js`,
+  //           `export * from '${this.moduleName()}/test-support/${publicModuleName}';`
+  //         )
+  //       )
+  //       .concat(
+  //         [
+  //           'adapters/acceptance-native-events',
+  //           'adapters/acceptance',
+  //           'adapters/integration-native-events',
+  //           'adapters/integration',
+  //           'adapters/rfc268',
+  //         ].map((publicModuleName) =>
+  //           writeFile(
+  //             `/${this.moduleName()}/${publicModuleName}.js`,
+  //             `export { default } from '${this.moduleName()}/test-support/${publicModuleName}';`
+  //           )
+  //         )
+  //       )
+  //   );
 
-    return mergeTrees([
-      testSupportTree,
-      this.preprocessJs(reexportsTree, '/', this.name, {
-        registry: this.registry,
-      }),
-    ]);
-  },
+  //   return mergeTrees([
+  //     testSupportTree,
+  //     this.preprocessJs(reexportsTree, '/', this.name, {
+  //       registry: this.registry,
+  //     }),
+  //   ]);
+  // },
 
-  _findHost() {
-    let current = this;
-    let app;
+  // _findHost() {
+  //   let current = this;
+  //   let app;
 
-    do {
-      app = current.app || app;
-    } while (current.parent.parent && (current = current.parent));
+  //   do {
+  //     app = current.app || app;
+  //   } while (current.parent.parent && (current = current.parent));
 
-    return app;
-  },
+  //   return app;
+  // },
 };
