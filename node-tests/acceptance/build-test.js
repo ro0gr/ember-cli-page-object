@@ -2,7 +2,7 @@ var assert = require('assert');
 var fs = require('fs');
 var AddonTestApp = require('ember-cli-addon-tests').AddonTestApp;
 
-describe.skip('Acceptance: development build', function() {
+describe('Acceptance: development build', function() {
   this.timeout(600000);
 
   var app;
@@ -16,10 +16,11 @@ describe.skip('Acceptance: development build', function() {
     app = new AddonTestApp();
   });
 
-  it('generates a development build', function() {
+  it.only('generates a development build', function() {
     return app
       .create('dummy', {
-        fixturesPath: 'node-tests/acceptance/fixtures'
+        fixturesPath: 'node-tests/acceptance/fixtures',
+        emberVersion: '^3.0.0'
       })
       .then(function() {
         return app.runEmberCommand('build', '-dev')
@@ -30,7 +31,8 @@ describe.skip('Acceptance: development build', function() {
   it('generates a production build', function() {
     return app
       .create('dummy', {
-        fixturesPath: 'node-tests/acceptance/fixtures'
+        fixturesPath: 'node-tests/acceptance/fixtures',
+        emberVersion: '^3.0.0'
       })
       .then(function() {
         return app.runEmberCommand('build', '-prod')
