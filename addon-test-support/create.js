@@ -1,6 +1,6 @@
-import Ceibo from 'ceibo';
 import deprecate from './-private/deprecate';
 import {
+  Ceibo,
   getPageObjectDefinition,
   isPageObject,
   storePageObjectDefinition,

@@ -1,6 +1,11 @@
-import Ceibo from 'ceibo';
+import _ceibo from 'ceibo';
 import deprecate from './deprecate';
 export { default as $ } from 'jquery';
+
+// @todo: fix it
+// workaround ceibo broken for webpack
+const Ceibo = _ceibo.Ceibo || _ceibo;
+export { Ceibo };
 
 function isPresent(value) {
   return typeof value !== 'undefined';

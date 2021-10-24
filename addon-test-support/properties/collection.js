@@ -1,5 +1,5 @@
-import Ceibo from 'ceibo';
 import {
+  Ceibo,
   buildSelector,
   isPageObject,
   getPageObjectDefinition,

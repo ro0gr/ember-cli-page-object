@@ -1,5 +1,4 @@
-import Ceibo from 'ceibo';
-import { buildSelector } from './helpers';
+import { Ceibo, buildSelector } from './helpers';
 
 export const ELEMENT_NOT_FOUND = 'Element not found.';
 
