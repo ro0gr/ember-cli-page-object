@@ -8,6 +8,7 @@ module.exports = function (api) {
     plugins: [
       ...buildEmberPlugins(__dirname, {
         shouldIgnoreJQuery: true,
+        disableModuleResolution: true,
       }),
     ],
   };
