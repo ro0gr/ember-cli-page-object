@@ -181,7 +181,7 @@ importers:
       ember-cli-doc-server: 1.1.0
       ember-cli-htmlbars: 6.1.0
       ember-cli-inject-live-reload: 1.10.2
-      ember-cli-page-object: file:addon_@ember+test-helpers@2.8.1
+      ember-cli-page-object: link:../addon
       ember-cli-sri: 2.1.1
       ember-cli-terser: 4.0.2
       ember-cli-typescript: 4.2.1
@@ -209,9 +209,6 @@ importers:
       qunit-dom: 2.0.0
       typescript: 4.7.4
       webpack: 5.74.0
-    dependenciesMeta:
-      ember-cli-page-object:
-        injected: true
 
 packages:
 
@@ -1587,6 +1584,7 @@ packages:
     dependencies:
       '@embroider/shared-internals': 1.8.3
       semver: 7.3.7
+    dev: false
 
   /@embroider/core/1.8.3:
     resolution: {integrity: sha512-/VdguyT/yhibgrjxL/J1ZFLvHo3EvUaBAxu9jAT3CYO9hIjWUKmJ81EZ0uK4zWykdifaefoz1/ctHnFjvm3/+w==}
@@ -2111,6 +2109,7 @@ packages:
 
   /@ro0gr/ceibo/2.2.0:
     resolution: {integrity: sha512-4gSXPwwr99zUWxnTllN5L4QlfgFDloYKOsenoPvx46LE75x3wvLgGUhxUxhIMxJbqOZ0w9pzrugjQR7St0/PQg==}
+    dev: false
 
   /@rollup/plugin-babel/5.3.1_oqwheajkaay7jaqpswtfouael4:
     resolution: {integrity: sha512-WFfdLWU/xVWKeRQnKmIAQULUI7Il0gZnBIH/ZFO069wYIfPu+8zrfp/KMW0atmELoRDq8FbiP3VCss9MhCut7Q==}
@@ -16668,24 +16667,4 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-    dev: true
-
-  file:addon_@ember+test-helpers@2.8.1:
-    resolution: {directory: addon, type: directory}
-    id: file:addon
-    name: ember-cli-page-object
-    version: 2.0.0-beta.3
-    engines: {node: 12.* || 14.* || >= 16}
-    peerDependencies:
-      '@ember/jquery': '*'
-      '@ember/test-helpers': ^2.5.0
-    peerDependenciesMeta:
-      '@ember/jquery':
-        optional: true
-    dependencies:
-      '@ember/test-helpers': 2.8.1_up662eot5v5zbrf6lzngzjtjw4
-      '@embroider/addon-shim': 1.8.3
-      '@ro0gr/ceibo': 2.2.0
-      '@types/jquery': 3.5.14
-      jquery: 3.6.0
     dev: true
