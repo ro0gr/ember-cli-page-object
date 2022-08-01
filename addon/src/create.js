@@ -7,6 +7,7 @@ import {
 } from './-private/meta';
 import { visitable } from './properties/visitable';
 import dsl from './-private/dsl';
+import { getter } from './macros/index';
 
 function assignDescriptors(target, source) {
   Object.getOwnPropertyNames(source).forEach((key) => {
@@ -250,13 +251,9 @@ export function create(definitionOrUrl, definitionOrOptions, optionsOrNothing) {
   });
 
   // Attach it to the root in the definition of the primary tree
-  definition._chainedTree = {
-    isDescriptor: true,
-
-    get() {
-      return chainedTree;
-    },
-  };
+  definition._chainedTree = getter(function () {
+    return chainedTree;
+  });
 
   // Build the primary tree
   let builder = {
